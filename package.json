@@ -1,0 +1,22 @@
+{
+  "name": "nm",
+  "version": "1.0.0",
+  "description": "Magister, reinvented!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NoahvdAa/NM.git"
+  },
+  "author": "NoahvdAa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NoahvdAa/NM/issues"
+  },
+  "homepage": "https://github.com/NoahvdAa/NM#readme",
+  "dependencies": {
+    "magister.js": "^2.0.0-alpha.11"
+  }
+}
