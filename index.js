@@ -26,14 +26,19 @@ app.ws('/magister', async function (ws, req) {
 
     if(message.type == 'getSchools'){
       getSchools(message.content).then((schools) => {
-        ws.send(JSON.stringify(schools.map(s => [s.name, s.id])));
+        ws.send(JSON.stringify({"type":"schools","content":JSON.stringify(schools.map(s => [s.name, s.id]))}));
         schools.forEach(s=>{
           schoolsByID[s.id] = s;
         });
       });
       return;
     }else if(message.type == 'login'){
-      var content = JSON.parse(message.content);
+      try{
+        var content = JSON.parse(message.content);
+      } catch (e){
+        return ws.send('{"error":"invalid_json"}');
+      }
+      if(typeof(ws.session) != 'undefined') return ws.send('{"error":"already_logged_in"}');
       if(content.length != 3) return ws.send('{"error":"invalid_format"}');
       if(typeof(schoolsByID[content[0]]) == 'undefined') return ws.send('{"error":"invalid_school"}');
       magister({
@@ -43,7 +48,7 @@ app.ws('/magister', async function (ws, req) {
       })
       .then((m) => {
         ws.session = m;
-        ws.send(`{"type":"login_success"}`);
+        ws.send(`{"type":"login_success","content":""}`);
       }, (err) => {
         ws.send(`{"error":"${err.toString()}"}`);
       });

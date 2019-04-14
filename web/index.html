@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Import Google Icon Font -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Import Materialize CSS -->
+    <link type="text/css" rel="stylesheet" href="css/materialize.css" media="screen,projection" />
+
+    <!-- Let browser know website is optimized for mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Required JS Libraries -->
+    <script type="text/javascript" src="js/jquery-3.4.0.js"></script>
+    <script type="text/javascript" src="js/materialize.js"></script>
+
+    <title>NM</title>
+</head>
+
+<body>
+
+    <div id="connecting"
+        style="background-color: #ef6c00; background-image: url(/img/loading.svg) center no-repeat; background-size: 12.5%; left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 999;">
+        &nbsp;
+    </div>
+
+    <noscript style="background: white; z-index: 99999; left: 0; right: 0; top: 0; bottom: 0; position: fixed;">
+        Enable JavaScript to use NM.
+        <br>
+        Schakel JavaScript in om NM te kunnen gebruiken.
+    </noscript>
+
+    <div class="login"
+        style="background-color: #ef6c00; left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 999;">
+        <div class="container">
+            &nbsp;
+        </div>
+        <div class="container" id="loginContainer">
+            <div class="card" id="enterSchoolName">
+                <div class="card-image">
+                    <a class="btn-floating halfway-fab waves-effect waves-light red disabled proceedto-auth"><i
+                            class="material-icons">arrow_forward</i></a>
+                </div>
+                <div class="card-content">
+                    <p>Welkom bij NM. Kies je school.</p>
+                    <div class="input-field">
+                        <i class="material-icons prefix">school</i>
+                        <input placeholder="bijvoorbeeld Terra College" id="schoolname" type="text" class="autocomplete"
+                            data-lpignore="true">
+                    </div>
+                    <br>
+                    <p>NM is open source! Click <a href="https://github.com/NoahvdAa/NM" target="_blank">here</a> to see
+                        our GitHub repository.</p>
+                </div>
+            </div>
+            <div class="card" id="authentication" style="display: none;">
+                <div class="card-image">
+                    <a class="btn-floating halfway-fab waves-effect waves-light red disabled proceedto-login"><i
+                            class="material-icons">arrow_forward</i></a>
+                </div>
+                <div class="card-content">
+                    <p id="schoolName"></p>
+                    <br>
+                    <div class="input-field">
+                        <i class="material-icons prefix">person</i>
+                        <input placeholder="" id="username" type="text">
+                        <label>Gebruikersnaam</label>
+                    </div>
+                    <div class="input-field">
+                        <i class="material-icons prefix">lock</i>
+                        <input placeholder="" id="password" type="password">
+                        <label>Wachtwoord</label>
+                    </div>
+                    <div class="row" id="wrongPassword" style="display: none;">
+                        <div class="col">
+                            <div class="card-panel red">
+                                <span class="white-text">
+                                    De combinatie van deze gebruikersnaam en dit wachtwoord klopt niet.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="magister" style="display: none;">
+        <a href="#" data-target="nav" class="btn-floating red sidenav-trigger hide-on-large-only"><i
+                class="material-icons">menu</i></a>
+        <ul id="nav" class="sidenav sidenav-fixed">
+            <li>
+                <div class="user-view">
+                    <div class="background orange darken-3"></div>
+                    <a href="#"><img class="circle" src="/img/loading.svg" style="width: 100px; height: 100px;"></a>
+                    <a href="#"><span class="white-text name">...</span></a>
+                    <a href="#"><span class="white-text schoolName">...</span></a>
+                </div>
+            </li>
+            <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+            <li><a href="#!">Second Link</a></li>
+            <li>
+                <div class="divider"></div>
+            </li>
+            <li><a class="subheader">Subheader</a></li>
+            <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+        </ul>
+    </div>
+
+</body>
+<script>
+    var validSchools = {};
+    var niceNames = {};
+
+    $(document).ready(function () {
+        $('.sidenav').sidenav();
+        $('#schoolname').autocomplete({
+            data: {},
+            limit: 10,
+            minLength: 1
+        });
+
+        connect();
+
+        $('#schoolname').on('input', function () {
+            window.socket.send(JSON.stringify({"type":"getSchools", "content": $('#schoolname').val()}));
+        });
+
+        $('.proceedto-auth').click(function () {
+            if (!$('.proceedto-auth').hasClass('disabled')) {
+                $(".schoolName").text(niceNames[$("#schoolname").val().toLowerCase()]);
+                $('#enterSchoolName').fadeOut(500, function () {
+                    $("#authentication").fadeIn(500);
+                });
+            }
+        });
+
+        $('.proceedto-login').click(function () {
+            if (!$('.proceedto-login').hasClass('disabled')) {
+                var data = [validSchools[$("#schoolname").val().toLowerCase()],$("#username").val(),$("#password").val()];
+                window.socket.send(JSON.stringify({"type":"login", "content": JSON.stringify(data)}));
+            }
+        });
+    });
+
+    function connect() {
+        window.socket = new WebSocket('ws://' + window.location.hostname + '/magister');
+
+        window.socket.onerror, window.socket.onclose = function () {
+            $("#connecting").fadeIn(1000);
+            setTimeout(connect, 1000);
+        };
+
+        window.socket.onopen = function () {
+            $("#connecting").fadeOut(1000);
+        };
+
+        window.socket.onmessage = function (event) {
+            var message = event.data;
+            try {
+                var decoded = JSON.parse(message);
+            } catch (e) {
+                return console.error('INVALID JSON RECEIVED: ' + message);
+            }
+
+            if (typeof (decoded.error) != 'undefined') {
+                if (decoded.error.startsWith('AuthError')) {
+                    $("#wrongPassword").fadeIn(100);
+                }
+            }
+
+            if (typeof (decoded.type) == 'undefined') return console.warn('No type found. Ignoring message.');
+            if (typeof (decoded.content) == 'undefined') return console.warn('No content found. Ignoring message.');
+
+            var type = decoded.type;
+            var content = decoded.content;
+
+            if (type == 'schools') {
+                var schools = JSON.parse(content);
+                if (schools.length != 0) {
+                    schools.forEach(s => {
+                        if (typeof (validSchools[s[0].toLowerCase()]) == 'undefined') {
+                            validSchools[s[0].toLowerCase()] = s[1];
+                            niceNames[s[0].toLowerCase()] = s[0];
+                        }
+                    });
+                }
+                setTimeout(function () {
+                    var schoolList = {};
+                    schools.forEach(s => {
+                        schoolList[s[0]] = null;
+                    });
+                    $('#schoolname').autocomplete({
+                        data: schoolList,
+                        limit: 10,
+                        minLength: 1
+                    });
+                    $('#schoolname').trigger('updateData');
+                }, 100);
+            }else if(type == 'login_success'){
+                window.socket.send('{"type":"profileInfo","content":""}');
+                $("#magister").show();
+                $("#loginContainer").fadeOut(500);
+                $(".login").fadeOut(500);
+            }else if(type == 'profileInfo'){
+                var info = JSON.parse(content);
+                $(".name").text(info.name);
+            }
+        }
+    }
+
+    setInterval(function () {
+        if (typeof (validSchools[$('#schoolname').val().toLowerCase()]) == 'undefined') {
+            $('.proceedto-auth').addClass('disabled');
+        } else {
+            $('.proceedto-auth').removeClass('disabled');
+        }
+    }, 500);
+    setInterval(function () {
+        if ($("#username").val().length > 0 && $("#password").val().length) {
+            $('.proceedto-login').removeClass('disabled');
+        } else {
+            $('.proceedto-login').addClass('disabled');
+        }
+    }, 500);
+</script>
+
+
+</html>
