@@ -108,6 +108,7 @@
 
 </body>
 <script>
+    var loggedIn = false;
     var validSchools = {};
     var niceNames = {};
 
@@ -178,7 +179,9 @@
             var type = decoded.type;
             var content = decoded.content;
 
-            if (type == 'schools') {
+            if(type == 'loginRequired' && loggedIn == true){
+                window.location.reload();
+            }else if (type == 'schools') {
                 var schools = JSON.parse(content);
                 if (schools.length != 0) {
                     schools.forEach(s => {
@@ -203,6 +206,7 @@
             }else if(type == 'fastlogin'){
                 $(".schoolName").text(content);
             }else if(type == 'login_success'){
+                loggedIn = true;
                 window.socket.send('{"type":"profileInfo","content":""}');
                 $("#magister").show();
                 $("#loginContainer").fadeOut(500);
