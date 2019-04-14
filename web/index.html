@@ -87,7 +87,7 @@
     <div class="container" id="magister" style="display: none;">
         <a href="#" data-target="nav" class="btn-floating red sidenav-trigger hide-on-large-only"><i
                 class="material-icons">menu</i></a>
-        <ul id="nav" class="sidenav sidenav-fixed">
+        <ul id="nav" class="sidenav sidenav-fixed menu">
             <li>
                 <div class="user-view">
                     <div class="background orange darken-3"></div>
@@ -96,23 +96,38 @@
                     <a href="#"><span class="white-text schoolName">...</span></a>
                 </div>
             </li>
-            <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
-            <li><a href="#!">Second Link</a></li>
+            <li data-tab="dashboard"><a href="#"><i class="material-icons">dashboard</i>Dashboard</a></li>
+            <li data-tab="calendar"><a href="#"><i class="material-icons">calendar_today</i>Agenda</a></li>
+            <li data-tab="grades"><a href="#"><i class="material-icons">grade</i>Cijfers</a></li>
             <li>
                 <div class="divider"></div>
             </li>
             <li><a class="subheader">Subheader</a></li>
             <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
         </ul>
+        <div class="tabs" style="left: 150px;">
+            <div class="tab tab-dashboard">
+                D
+            </div>
+            <div class="tab tab-calendar">
+                C
+            </div>
+            <div class="tab tab-grades">
+                G
+            </div>
+        </div>
     </div>
 
 </body>
 <script>
+    var currentTab = 'none';
     var loggedIn = false;
     var validSchools = {};
     var niceNames = {};
 
     $(document).ready(function () {
+        switchTab('dashboard');
+
         $('.sidenav').sidenav();
         $('#schoolname').autocomplete({
             data: {},
@@ -122,8 +137,13 @@
 
         connect();
 
+        $(".menu > li").click(function () {
+            if(!$(this).data('tab')) return;
+            switchTab($(this).data('tab'));
+        });
+
         $('#schoolname').on('input', function () {
-            window.socket.send(JSON.stringify({"type":"getSchools", "content": $('#schoolname').val()}));
+            window.socket.send(JSON.stringify({ "type": "getSchools", "content": $('#schoolname').val() }));
         });
 
         $('.proceedto-auth').click(function () {
@@ -137,15 +157,15 @@
 
         $('.proceedto-login').click(function () {
             if (!$('.proceedto-login').hasClass('disabled')) {
-                var data = [validSchools[$("#schoolname").val().toLowerCase()],$("#username").val(),$("#password").val()];
-                window.socket.send(JSON.stringify({"type":"login", "content": JSON.stringify(data)}));
+                var data = [validSchools[$("#schoolname").val().toLowerCase()], $("#username").val(), $("#password").val()];
+                window.socket.send(JSON.stringify({ "type": "login", "content": JSON.stringify(data) }));
             }
         });
     });
 
     function connect() {
         var protocol = 'ws://';
-        if(window.location.protocol == 'https:'){
+        if (window.location.protocol == 'https:') {
             protocol = 'wss://';
         }
         window.socket = new WebSocket(protocol + window.location.hostname + '/magister');
@@ -179,10 +199,10 @@
             var type = decoded.type;
             var content = decoded.content;
 
-            if(type == 'loginRequired'){
+            if (type == 'loginRequired') {
                 if (loggedIn) window.location.reload();
                 else $("#loginContainer").fadeIn(1000);
-            }else if (type == 'schools') {
+            } else if (type == 'schools') {
                 var schools = JSON.parse(content);
                 if (schools.length != 0) {
                     schools.forEach(s => {
@@ -204,9 +224,9 @@
                     });
                     $('#schoolname').trigger('updateData');
                 }, 100);
-            }else if(type == 'fastlogin'){
+            } else if (type == 'fastlogin') {
                 $(".schoolName").text(content);
-            }else if(type == 'login_success'){
+            } else if (type == 'login_success') {
                 loggedIn = true;
                 window.socket.send('{"type":"profileInfo","content":""}');
                 $("#magister").show();
@@ -214,14 +234,23 @@
                 $(".login").fadeOut(500);
 
                 // Set session.
-                $.get('/set_session?schoolname='+encodeURI($(".schoolName").text())+'&session='+encodeURI(content),function(data,err){
-                    console.info('Response when setting setting session token: '+data);
+                $.get('/set_session?schoolname=' + encodeURI($(".schoolName").text()) + '&session=' + encodeURI(content), function (data, err) {
+                    console.info('Response when setting setting session token: ' + data);
                 });
-            }else if(type == 'profileInfo'){
+            } else if (type == 'profileInfo') {
                 var info = JSON.parse(content);
                 $(".name").text(info.name);
             }
         }
+    }
+
+    function switchTab(newTab) {
+        if (newTab == currentTab) return;
+        $(".tab").hide();
+        $(".tab-" + newTab).fadeIn(500);
+        $(".menu > li").removeClass('active');
+        $("[data-tab=" + newTab + "]").addClass('active');
+        currentTab = newTab;
     }
 
     setInterval(function () {
@@ -231,12 +260,17 @@
             $('.proceedto-auth').removeClass('disabled');
         }
     }, 500);
+
     setInterval(function () {
         if ($("#username").val().length > 0 && $("#password").val().length) {
             $('.proceedto-login').removeClass('disabled');
         } else {
             $('.proceedto-login').addClass('disabled');
         }
+    }, 500);
+
+    setInterval(function(){
+        $(".tab:not(.tab-"+currentTab+")").hide();
     }, 500);
 </script>
 
