@@ -9,6 +9,8 @@ var expressWs = require('express-ws')(app);
 app.use(express.static('web/'));
 
 app.ws('/magister', async function (ws, req) {
+  ws.send('{"type":"loginRequired","content":""}');
+
   ws.on('message', async function (msg) {
     try {
       message = JSON.parse(msg);
@@ -56,12 +58,13 @@ app.ws('/magister', async function (ws, req) {
       profileInfo = {};
 
       profileInfo.name = ws.session.profileInfo.getFullName();
+      profileInfo.school = ws.session.school;
 
       ws.send(JSON.stringify({"type":"profileInfo", "content": JSON.stringify(profileInfo)}));
     }
   });
 });
 
-app.listen(80, function () {
+app.listen(process.env.PORT || 80, function () {
   console.log('Listening on port 80!');
 });
