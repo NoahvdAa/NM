@@ -143,7 +143,11 @@
     });
 
     function connect() {
-        window.socket = new WebSocket('ws://' + window.location.hostname + '/magister');
+        var protocol = 'ws://';
+        if(window.location.protocol == 'https:'){
+            protocol = 'wss://';
+        }
+        window.socket = new WebSocket(protocol + window.location.hostname + '/magister');
 
         window.socket.onerror, window.socket.onclose = function () {
             $("#connecting").fadeIn(1000);
