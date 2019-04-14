@@ -200,11 +200,18 @@
                     });
                     $('#schoolname').trigger('updateData');
                 }, 100);
+            }else if(type == 'fastlogin'){
+                $(".schoolName").text(content);
             }else if(type == 'login_success'){
                 window.socket.send('{"type":"profileInfo","content":""}');
                 $("#magister").show();
                 $("#loginContainer").fadeOut(500);
                 $(".login").fadeOut(500);
+
+                // Set session.
+                $.get('/set_session?schoolname='+encodeURI($(".schoolName").text())+'&session='+encodeURI(content),function(data,err){
+                    console.info('Response when setting setting session token: '+data);
+                });
             }else if(type == 'profileInfo'){
                 var info = JSON.parse(content);
                 $(".name").text(info.name);
