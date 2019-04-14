@@ -103,6 +103,21 @@ app.ws('/magister', async function (ws, req) {
       profileInfo.school = ws.session.school;
 
       ws.send(JSON.stringify({"type":"profileInfo", "content": JSON.stringify(profileInfo)}));
+    }else if(message.type == 'appointments'){
+      try{
+        var content = JSON.parse(message.content);
+      } catch (e){
+        return ws.send('{"error":"invalid_json"}');
+      }
+      if(content.length != 2) return ws.send('{"error":"must_specify_two_dates"}');
+
+      var date0 = new Date(content[0].split('-').reverse().join('-'));
+      var date1 = new Date(content[1].split('-').reverse().join('-'));
+      if(date0 == "Invalid Date" || date1 == "Invalid Date") return ws.send('{"error":"invalid_date"}');
+
+      ws.session.appointments(date0,date1).then(a=>{
+        ws.send(JSON.stringify({"type":"appointments","content":JSON.stringify(a)}));
+      });
     }
   });
 });

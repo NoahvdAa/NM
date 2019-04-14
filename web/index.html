@@ -87,6 +87,9 @@
     <div class="container" id="magister" style="display: none;">
         <a href="#" data-target="nav" class="btn-floating red sidenav-trigger hide-on-large-only"><i
                 class="material-icons">menu</i></a>
+        <a href="#" data-target="calendarPicker"
+            class="tab tab-calendar btn-floating blue lighten-2 sidenav-trigger hide-on-large-only"><i
+                class="material-icons">date_range</i></a>
         <ul id="nav" class="sidenav sidenav-fixed menu">
             <li>
                 <div class="user-view">
@@ -110,7 +113,18 @@
                 D
             </div>
             <div class="tab tab-calendar">
-                C
+                <ul id="calendarPicker" class="sidenav sidenav-fixed calendarPicker">
+                    <li>
+                        <div class="user-view">
+                            <div class="background orange darken-3"></div>
+                        </div>
+                    </li>
+                    <li><a href="#"><i class="material-icons">dashboard</i>Buttons</a></li>
+                    <li>
+                        <div class="divider"></div>
+                    </li>
+                    <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+                </ul>
             </div>
             <div class="tab tab-grades">
                 G
@@ -128,7 +142,8 @@
     $(document).ready(function () {
         switchTab('dashboard');
 
-        $('.sidenav').sidenav();
+        $('.menu').sidenav();
+        $('.calendarPicker').sidenav({ edge: "right" });
         $('#schoolname').autocomplete({
             data: {},
             limit: 10,
@@ -138,7 +153,7 @@
         connect();
 
         $(".menu > li").click(function () {
-            if(!$(this).data('tab')) return;
+            if (!$(this).data('tab')) return;
             switchTab($(this).data('tab'));
         });
 
@@ -234,7 +249,7 @@
                 $(".login").fadeOut(500);
 
                 // Set session.
-                $.get('/set_session?schoolname=' + encodeURI($(".schoolName").text()) + '&session=' + encodeURI(content), function (data, err) {
+                $.get('/set_session?schoolname=' + encodeURI($(".schoolName").first().text()) + '&session=' + encodeURI(content), function (data, err) {
                     console.info('Response when setting setting session token: ' + data);
                 });
             } else if (type == 'profileInfo') {
@@ -269,8 +284,8 @@
         }
     }, 500);
 
-    setInterval(function(){
-        $(".tab:not(.tab-"+currentTab+")").hide();
+    setInterval(function () {
+        $(".tab:not(.tab-" + currentTab + ")").hide();
     }, 500);
 </script>
 
