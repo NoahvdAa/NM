@@ -51,6 +51,14 @@ app.ws('/magister', async function (ws, req) {
     if(typeof(ws.session) == 'undefined') return ws.send('{"error":"not_logged_in"}');
 
     // These functions are only available when you are logged in.
+
+    if(message.type == 'profileInfo'){
+      profileInfo = {};
+
+      profileInfo.name = ws.session.profileInfo.getFullName();
+
+      ws.send(JSON.stringify({"type":"profileInfo", "content": JSON.stringify(profileInfo)}));
+    }
   });
 });
 

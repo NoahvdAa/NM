@@ -1,9 +1,9 @@
 {
     "availableLanguages": ["en", "nl"],
     "en": {
-
+        "AuthError: Invalid password": "The username and/or password you specified is incorrect."
     },
     "nl": {
-
+        "AuthError: Invalid password": "De gebruikersnaam en/of het wachtwoord wat u heeft ingevoerd is fout."
     }
 }
