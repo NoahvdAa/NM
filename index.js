@@ -41,6 +41,8 @@ app.ws('/magister', async function (ws, req) {
           });
         }
       })
+    }else{
+      ws.send('{"type":"loginRequired","content":""}');
     }
   }else{
     ws.send('{"type":"loginRequired","content":""}');
