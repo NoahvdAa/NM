@@ -114,16 +114,16 @@
             <div class="tab tab-calendar">
                 <ul id="calendarPicker" class="sidenav sidenav-fixed calendarPicker">
                     <li>
-                        <div class="user-view">
-                            <div class="background orange darken-3"></div>
-                        </div>
+                        <i class="material-icons">calendar_today</i>Data
+                        <br>
+                        Vanaf: <input type="date" id="calendar-from">
+                        <br>
+                        Tot En Met: <input type="date" id="calendar-to">
                     </li>
-                    <li><a href="#"><i class="material-icons">dashboard</i>Buttons</a></li>
-                    <li>
-                        <div class="divider"></div>
-                    </li>
-                    <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
                 </ul>
+                <div class="appointments">
+
+                </div>
             </div>
             <div class="tab tab-grades">
                 G
@@ -144,6 +144,7 @@
     var niceNames = {};
 
     $(document).ready(function () {
+
         switchTab('dashboard');
 
         $('.menu').sidenav();
@@ -179,6 +180,15 @@
                 var data = [validSchools[$("#schoolname").val().toLowerCase()], $("#username").val(), $("#password").val()];
                 window.socket.send(JSON.stringify({ "type": "login", "content": JSON.stringify(data) }));
             }
+        });
+
+
+        $("#calendar-from").change(function () {
+            updateCalendar();
+        });
+
+        $("#calendar-to").change(function () {
+            updateCalendar();
         });
     });
 
@@ -246,6 +256,7 @@
             } else if (type == 'fastlogin') {
                 $(".schoolName").text(content);
             } else if (type == 'login_success') {
+                resetCalendar();
                 loggedIn = true;
                 window.socket.send('{"type":"profileInfo","content":""}');
                 $("#magister").show();
@@ -259,6 +270,43 @@
             } else if (type == 'profileInfo') {
                 var info = JSON.parse(content);
                 $(".name").text(info.name);
+            } else if (type == 'appointments') {
+                var appointments = JSON.parse(content);
+
+                if (appointments.length == 0) {
+                    $(".appointments").text('Geen afspraken gevonden.');
+                } else {
+                    $(".appointments").html('');
+                    var date = new Date(0);
+                    var c = 0;
+                    var newHTML = $(".appointments").html();
+                    appointments.forEach(a => {
+                        if (new Date(a.start).getDate() != date.getDate()) {
+                            // New day!
+                            if(c != 0) newHTML += '</tbody></table>';
+                            date = new Date(a.start);
+                            newHTML += '<table><thead><tr><td><strong>' + date.toLocaleDateString() + '</strong></td></tr></thead><tbody>';
+                        }
+
+                        var hours = '';
+                        if (a.startBySchoolhour != null) {
+                            var list = [];
+                            for (var i = a.startBySchoolhour; i <= a.endBySchoolhour; i++) {
+                                list.push(i);
+                            }
+                            hours = list.join('-')+' | ';
+                        }
+
+                        var extraHTML = '';
+                        if(a.isChanged) extraHTML = ' class="blue lighten-3"';
+                        if(a.isCancelled) extraHTML = ' class="red lighten-2"';
+
+                        newHTML += '<tr'+extraHTML+'><td>';
+                        newHTML += '<p>'+hours+a.description+'</p>';
+                        newHTML += '</td></tr>';
+                    });
+                    $(".appointments").html(newHTML+'</tbody></table>');
+                }
             }
         }
     }
@@ -270,6 +318,34 @@
         $(".menu > li").removeClass('active');
         $("[data-tab=" + newTab + "]").addClass('active');
         currentTab = newTab;
+
+        if (newTab == 'calendar') resetCalendar();
+    }
+
+    function addZeroIfRequired(number) {
+        if (number < 10) return '0' + number;
+        return number;
+    }
+
+    function resetCalendar() {
+        var today = new Date();
+
+        $("#calendar-from").val(today.getFullYear() + '-' + addZeroIfRequired(today.getMonth() + 1) + '-' + addZeroIfRequired(today.getDate()));
+
+        var nextweek = new Date();
+        nextweek.setDate(today.getDate() + 7);
+
+        $("#calendar-to").val(nextweek.getFullYear() + '-' + addZeroIfRequired(nextweek.getMonth() + 1) + '-' + addZeroIfRequired(nextweek.getDate()));
+
+        updateCalendar();
+    }
+
+    function updateCalendar() {
+        var from = new Date($("#calendar-from").val());
+        var to = new Date($("#calendar-to").val());
+        var formattedFrom = addZeroIfRequired(from.getDate()) + '-' + addZeroIfRequired(from.getMonth() + 1) + '-' + from.getFullYear();
+        var formattedTo = addZeroIfRequired(to.getDate()) + '-' + addZeroIfRequired(to.getMonth() + 1) + '-' + to.getFullYear();
+        window.socket.send(JSON.stringify({ "type": "appointments", "content": JSON.stringify([formattedFrom, formattedTo]) }));
     }
 
     setInterval(function () {
@@ -292,6 +368,12 @@
         $(".tab:not(.tab-" + currentTab + ")").hide();
     }, 500);
 </script>
-
+<style>
+    .tabs,
+    .tab {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+    }
+</style>
 
 </html>
