@@ -281,6 +281,8 @@
                     var c = 0;
                     var newHTML = $(".appointments").html();
                     appointments.forEach(a => {
+                        if(a.isCancelled) return;
+                        
                         if (new Date(a.start).getDate() != date.getDate()) {
                             // New day!
                             if(c != 0) newHTML += '</tbody></table>';
@@ -299,7 +301,6 @@
 
                         var extraHTML = '';
                         if(a.isChanged) extraHTML = ' class="blue lighten-3"';
-                        if(a.isCancelled) extraHTML = ' class="red lighten-2"';
 
                         newHTML += '<tr'+extraHTML+'><td>';
                         newHTML += '<p>'+hours+a.description+'</p>';
@@ -369,10 +370,16 @@
     }, 500);
 </script>
 <style>
+    /* CSS OVERRIDES */
+
     .tabs,
     .tab {
         overflow-x: visible !important;
         overflow-y: visible !important;
+    }
+
+    td, th {
+        padding: 2.5px !important; 
     }
 </style>
 
