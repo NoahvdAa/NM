@@ -302,8 +302,11 @@
                         var extraHTML = '';
                         if(a.isChanged) extraHTML = ' class="blue lighten-3"';
 
+                        var location = '';
+                        if(a.location) location = ' ('+a.location+')';
+
                         newHTML += '<tr'+extraHTML+'><td>';
-                        newHTML += '<p>'+hours+a.description+'</p>';
+                        newHTML += '<p>'+hours+a.description+location+'</p>';
                         newHTML += '</td></tr>';
                     });
                     $(".appointments").html(newHTML+'</tbody></table>');
