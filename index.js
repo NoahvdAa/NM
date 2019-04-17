@@ -1,3 +1,22 @@
+// Clear tmp directory
+const fs = require('fs');
+const path = require('path');
+
+fs.readdir('tmp', (err, files) => {
+  if (err) throw err;
+
+  for (const file of files) {
+    if(fs.lstatSync('tmp/'+file).isDirectory()){
+      fs.rmdir(path.join('tmp', file), () => {});
+    }else{
+      fs.unlink(path.join('tmp', file), () => {});
+    }
+  }
+  setTimeout(function(){
+    fs.mkdirSync('tmp/img');
+  },100);
+})
+
 const { default: magister, getSchools } = require('magister.js');
 
 var schoolsByID = {};
@@ -8,6 +27,7 @@ var expressWs = require('express-ws')(app);
 var cookieParser = require('cookie-parser');
 
 app.use(express.static('web/'));
+app.use(express.static('tmp/'));
 app.use(cookieParser());
 
 app.get('/set_session', async function (req, res){

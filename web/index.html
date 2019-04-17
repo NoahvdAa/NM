@@ -281,6 +281,7 @@
                     var c = 0;
                     var newHTML = $(".appointments").html();
                     appointments.forEach(a => {
+                        // Hide cancelled appointments.
                         if(a.isCancelled) return;
                         
                         if (new Date(a.start).getDate() != date.getDate()) {
@@ -299,9 +300,11 @@
                             hours = '<span class="badge black">'+list.join('-')+'</span> | ';
                         }
 
+                        // Information has changed? Make it blue.
                         var extraHTML = '';
                         if(a.isChanged) extraHTML = ' class="blue lighten-3"';
 
+                        // Show location if specified.
                         var location = '';
                         if(a.location) location = ' ('+a.location+')';
 
