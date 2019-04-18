@@ -18,9 +18,11 @@
   "homepage": "https://github.com/NoahvdAa/NM#readme",
   "dependencies": {
     "cookie-parser": "^1.4.4",
+    "crypto": "^1.0.1",
     "express": "^4.16.4",
     "express-ws": "^4.0.0",
     "magister.js": "^2.0.0-alpha.11",
+    "rimraf": "^2.6.3",
     "ws": "^6.2.1"
   }
 }

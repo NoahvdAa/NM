@@ -1,25 +1,12 @@
 // Clear tmp directory
-const fs = require('fs');
-const path = require('path');
+var fs = require('fs');
+var rimraf = require("rimraf");
+rimraf("tmp/", function () { 
+  fs.mkdirSync('tmp');
+  fs.mkdirSync('tmp/img');
+});
 
-if (fs.existsSync('tmp')) {
-  fs.readdir('tmp', (err, files) => {
-    if (err) throw err;
-
-    for (const file of files) {
-      if (fs.lstatSync('tmp/' + file).isDirectory()) {
-        fs.rmdir(path.join('tmp', file), () => { });
-      } else {
-        fs.unlink(path.join('tmp', file), () => { });
-      }
-    }
-    setTimeout(function () {
-      fs.mkdirSync('tmp/img');
-    }, 100);
-  });
-}
-
-const { default: magister, getSchools } = require('magister.js');
+var { default: magister, getSchools } = require('magister.js');
 
 var schoolsByID = {};
 
@@ -27,6 +14,7 @@ var express = require('express');
 var app = express();
 var expressWs = require('express-ws')(app);
 var cookieParser = require('cookie-parser');
+var crypto = require('crypto');
 
 app.use(express.static('web/'));
 app.use(express.static('tmp/'));
@@ -125,6 +113,14 @@ app.ws('/magister', async function (ws, req) {
       profileInfo.school = ws.session.school;
 
       ws.send(JSON.stringify({ "type": "profileInfo", "content": JSON.stringify(profileInfo) }));
+
+      ws.session.profileInfo.getProfilePicture().then(s=>{
+        var id = crypto.randomBytes(20).toString('hex');
+        s.pipe(fs.createWriteStream('tmp/img/'+id+'.png'))
+        .on('finish',function(){
+          ws.send('{"type":"profilePicture","content":"/img/'+id+'.png"}');
+        });
+      });
     } else if (message.type == 'appointments') {
       try {
         var content = JSON.parse(message.content);
