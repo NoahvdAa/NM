@@ -94,7 +94,7 @@
             <li>
                 <div class="user-view">
                     <div class="background orange darken-3"></div>
-                    <a href="#"><img class="circle" src="/img/loading.svg" style="width: 100px; height: 100px;"></a>
+                    <a href="#"><img class="circle profilePicture" src="/img/loading.svg" style="width: 100px; height: 100px;"></a>
                     <a href="#"><span class="white-text name">...</span></a>
                     <a href="#"><span class="white-text schoolName">...</span></a>
                 </div>
@@ -314,6 +314,8 @@
                     });
                     $(".appointments").html(newHTML+'</tbody></table>');
                 }
+            }else if(type == 'profilePicture'){
+                $(".profilePicture").attr('src', content);
             }
         }
     }
