@@ -94,7 +94,8 @@
             <li>
                 <div class="user-view">
                     <div class="background orange darken-3"></div>
-                    <a href="#"><img class="circle profilePicture" src="/img/loading.svg" style="width: 100px; height: 100px;"></a>
+                    <a href="#"><img class="circle profilePicture" src="/img/loading.svg"
+                            style="width: 100px; height: 100px;"></a>
                     <a href="#"><span class="white-text name">...</span></a>
                     <a href="#"><span class="white-text schoolName">...</span></a>
                 </div>
@@ -102,6 +103,7 @@
             <li data-tab="dashboard"><a href="#"><i class="material-icons">dashboard</i>Dashboard</a></li>
             <li data-tab="calendar"><a href="#"><i class="material-icons">calendar_today</i>Agenda</a></li>
             <li data-tab="grades"><a href="#"><i class="material-icons">grade</i>Cijfers</a></li>
+            <li data-tab="messages"><a href="#"><i class="material-icons">message</i>Berichten</a></li>
             <li>
                 <div class="divider"></div>
             </li>
@@ -127,6 +129,9 @@
             </div>
             <div class="tab tab-grades">
                 G
+            </div>
+            <div class="tab tab-messages">
+                M
             </div>
             <!-- PERSONALIZATION -->
             <div class="tab tab-personalization">
@@ -241,18 +246,16 @@
                         }
                     });
                 }
-                setTimeout(function () {
-                    var schoolList = {};
-                    schools.forEach(s => {
-                        schoolList[s[0]] = null;
-                    });
-                    $('#schoolname').autocomplete({
-                        data: schoolList,
-                        limit: 10,
-                        minLength: 1
-                    });
-                    $('#schoolname').trigger('updateData');
-                }, 100);
+                var schoolList = {};
+                schools.forEach(s => {
+                    schoolList[s[0]] = null;
+                });
+                $('#schoolname').autocomplete({
+                    data: schoolList,
+                    limit: 10,
+                    minLength: 1
+                });
+                $('#schoolname').trigger('updateData');
             } else if (type == 'fastlogin') {
                 $(".schoolName").text(content);
             } else if (type == 'login_success') {
@@ -282,11 +285,11 @@
                     var newHTML = $(".appointments").html();
                     appointments.forEach(a => {
                         // Hide cancelled appointments.
-                        if(a.isCancelled) return;
-                        
+                        if (a.isCancelled) return;
+
                         if (new Date(a.start).getDate() != date.getDate()) {
                             // New day!
-                            if(c != 0) newHTML += '</tbody></table>';
+                            if (c != 0) newHTML += '</tbody></table>';
                             date = new Date(a.start);
                             newHTML += '<table><thead><tr><td><strong>' + date.toLocaleDateString() + '</strong></td></tr></thead><tbody>';
                         }
@@ -297,24 +300,24 @@
                             for (var i = a.startBySchoolhour; i <= a.endBySchoolhour; i++) {
                                 list.push(i);
                             }
-                            hours = '<span class="badge black">'+list.join('-')+'</span> | ';
+                            hours = '<span class="badge black">' + list.join('-') + '</span> | ';
                         }
 
                         // Information has changed? Make it blue.
                         var extraHTML = '';
-                        if(a.isChanged) extraHTML = ' class="blue lighten-3"';
+                        if (a.isChanged) extraHTML = ' class="blue lighten-3"';
 
                         // Show location if specified.
                         var location = '';
-                        if(a.location) location = ' ('+a.location+')';
+                        if (a.location) location = ' (' + a.location + ')';
 
-                        newHTML += '<tr'+extraHTML+'><td>';
-                        newHTML += '<p>'+hours+a.description+location+'</p>';
+                        newHTML += '<tr' + extraHTML + '><td>';
+                        newHTML += '<p>' + hours + a.description + location + '</p>';
                         newHTML += '</td></tr>';
                     });
-                    $(".appointments").html(newHTML+'</tbody></table>');
+                    $(".appointments").html(newHTML + '</tbody></table>');
                 }
-            }else if(type == 'profilePicture'){
+            } else if (type == 'profilePicture') {
                 $(".profilePicture").attr('src', content);
             }
         }
@@ -386,8 +389,9 @@
         overflow-y: visible !important;
     }
 
-    td, th {
-        padding: 2.5px !important; 
+    td,
+    th {
+        padding: 2.5px !important;
     }
 </style>
 
