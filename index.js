@@ -32,10 +32,10 @@ app.get('/set_session', async function (req, res) {
 app.ws('/magister', async function (ws, req) {
 
   if (req.cookies) {
-    if (typeof (req.cookies.schoolName) != 'undefined' && typeof (req.cookies.session)) {
+    if (typeof (req.cookies.schoolName) != 'undefined' && typeof (req.cookies.session) != 'undefined') {
       getSchools(req.cookies.schoolName).then(s => {
         if (s.length == 0) {
-          ws.send('{"type":"loginRequired","content":""}');
+          ws.send('{"type":"loginRequired","content":"invalidSchool"}');
         } else {
           magister({
             school: s[0],
@@ -47,7 +47,7 @@ app.ws('/magister', async function (ws, req) {
               ws.send(`{"type":"login_success","content":"${m.token}"}`);
             }, (err) => {
               // Login Failed
-              ws.send('{"type":"loginRequired","content":""}');
+              ws.send('{"type":"loginRequired","content":"tokenExpired"}');
             });
         }
       })
