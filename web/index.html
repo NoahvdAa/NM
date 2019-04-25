@@ -33,6 +33,9 @@
     <script type="text/javascript" src="/js/iconselect.js"></script>
     <script type="text/javascript" src="/js/iscroll.js"></script>
 
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+
     <title>NM</title>
 </head>
 
@@ -72,6 +75,8 @@
                         our GitHub repository.</p>
                     <br>
                     <div id="language-selector-schoolpicker"></div>
+                    <br>
+                    <span id="commit"></span>
                 </div>
             </div>
             <div class="card" id="authentication" style="display: none;">
@@ -123,14 +128,19 @@
                     <a href="#"><span class="white-text schoolName">...</span></a>
                 </div>
             </li>
-            <li data-tab="dashboard"><a href="#"><i class="material-icons">dashboard</i><span data-lkey="sidebar.tab.dashboard">Dashboard</span></a></li>
-            <li data-tab="calendar"><a href="#"><i class="material-icons">calendar_today</i><span data-lkey="sidebar.tab.calendar">Calendar</span></a></li>
-            <li data-tab="grades"><a href="#"><i class="material-icons">grade</i><span data-lkey="sidebar.tab.grades">Grades</span></a></li>
-            <li data-tab="messages"><a href="#"><i class="material-icons">message</i><span data-lkey="sidebar.tab.messages">Messages</span></a></li>
+            <li data-tab="dashboard"><a href="#"><i class="material-icons">dashboard</i><span
+                        data-lkey="sidebar.tab.dashboard">Dashboard</span></a></li>
+            <li data-tab="calendar"><a href="#"><i class="material-icons">calendar_today</i><span
+                        data-lkey="sidebar.tab.calendar">Calendar</span></a></li>
+            <li data-tab="grades"><a href="#"><i class="material-icons">grade</i><span
+                        data-lkey="sidebar.tab.grades">Grades</span></a></li>
+            <li data-tab="messages"><a href="#"><i class="material-icons">message</i><span
+                        data-lkey="sidebar.tab.messages">Messages</span></a></li>
             <li>
                 <div class="divider"></div>
             </li>
-            <li data-tab="personalization"><a href="#"><i class="material-icons">brush</i><span data-lkey="sidebar.tab.personalization">Personalization</span></a></li>
+            <li data-tab="personalization"><a href="#"><i class="material-icons">brush</i><span
+                        data-lkey="sidebar.tab.personalization">Personalization</span></a></li>
             <li>
                 <div class="divider"></div>
             </li>
@@ -289,6 +299,12 @@
             if (type == 'loginRequired') {
                 if (loggedIn) window.location.reload();
                 else $("#loginContainer").fadeIn(1000);
+            } else if (type == 'serverInfo') {
+                var info = JSON.parse(content);
+
+                if (info.gitHash != 'unknown') {
+                    $("#commit").html('<a href="https://github.com/NoahvdAa/NM/commit/' + info.gitHash + '"><i class="fas fa-code-branch"></i> ' + info.gitHash + '</a>')
+                }
             } else if (type == 'schools') {
                 var schools = JSON.parse(content);
                 if (schools.length != 0) {
@@ -424,15 +440,15 @@
 
     function makeLanguagePicker(id) {
         document.getElementById(id).addEventListener('changed', function (e) {
-            if(window.globalChangeLPicker) return;
+            if (window.globalChangeLPicker) return;
             var values = window.lPickers[id].getSelectedValue().split(';');
             language = values[1];
-            localStorage.setItem("language",language);
+            localStorage.setItem("language", language);
 
             setLocalizedValues();
 
             window.globalChangeLPicker = true;
-            Object.keys(window.lPickers).forEach(pickerKey=>{
+            Object.keys(window.lPickers).forEach(pickerKey => {
                 picker = window.lPickers[pickerKey];
                 picker.setSelectedIndex(values[0]);
             });

@@ -31,6 +31,14 @@ app.get('/set_session', async function (req, res) {
 
 app.ws('/magister', async function (ws, req) {
 
+  ws.send(JSON.stringify({
+    "type": "serverInfo",
+    "content": JSON.stringify({
+      // This environment value is set by Heroku.
+      "gitHash": process.env.SOURCE_VERSION || "unknown"
+    })
+  }));
+
   if (req.cookies) {
     if (typeof (req.cookies.schoolName) != 'undefined' && typeof (req.cookies.session) != 'undefined') {
       getSchools(req.cookies.schoolName).then(s => {
