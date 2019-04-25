@@ -29,8 +29,6 @@ app.get('/set_session', async function (req, res) {
   res.send('OK');
 });
 
-console.log(process.env);
-
 app.ws('/magister', async function (ws, req) {
 
   ws.send(JSON.stringify({
