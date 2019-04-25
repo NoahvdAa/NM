@@ -1,9 +1,27 @@
 {
     "availableLanguages": ["en", "nl"],
     "en": {
-        "AuthError: Invalid password": "The username and/or password you specified is incorrect."
+        "login.schoolpicker.welcome": "Welcome to NM. Choose your school.",
+        "login.schoolpicker.opensource": "NM is open source! Click <a href='https://github.com/NoahvdAa/NM' target='_blank'>here</a> to visit our GitHub repository.",
+        "login.auth.username": "Username",
+        "login.auth.password": "Password",
+        "login.auth.wrongpassword": "The combination of username and password that you entered is incorrect.",
+        "sidebar.tab.dashboard": "Dashboard",
+        "sidebar.tab.calendar": "Calendar",
+        "sidebar.tab.grades": "Grades",
+        "sidebar.tab.messages": "Messages",
+        "sidebar.tab.personalization": "Personalization"
     },
     "nl": {
-        "AuthError: Invalid password": "De gebruikersnaam en/of het wachtwoord wat u heeft ingevoerd is fout."
+        "login.schoolpicker.welcome": "Welkom bij NM. Kies je school.",
+        "login.schoolpicker.opensource": "NM is open source! Klik <a href='https://github.com/NoahvdAa/NM' target='_blank'>hier</a> om onze GitHub respository te bezoeken.",
+        "login.auth.username": "Gebruikersnaam",
+        "login.auth.password": "Wachtwoord",
+        "login.auth.wrongpassword": "De combinatie van gebruikersnaam en wachtwoord die je hebt ingevoerd klopt niet.",
+        "sidebar.tab.dashboard": "Dashboard",
+        "sidebar.tab.calendar": "Kalender",
+        "sidebar.tab.grades": "Cijfers",
+        "sidebar.tab.messages": "Berichten",
+        "sidebar.tab.personalization": "Personalisatie"
     }
 }

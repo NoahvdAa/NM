@@ -28,6 +28,11 @@
     <!-- IOS meta tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
 
+    <!-- IconSelect -->
+    <link rel="stylesheet" type="text/css" href="/css/iconselect.css">
+    <script type="text/javascript" src="/js/iconselect.js"></script>
+    <script type="text/javascript" src="/js/iscroll.js"></script>
+
     <title>NM</title>
 </head>
 
@@ -56,15 +61,17 @@
                             class="material-icons">arrow_forward</i></a>
                 </div>
                 <div class="card-content">
-                    <p>Welkom bij NM. Kies je school.</p>
+                    <p data-lkey="login.schoolpicker.welcome">Welcome to NM. Choose your school.</p>
                     <div class="input-field">
                         <i class="material-icons prefix">school</i>
-                        <input placeholder="bijvoorbeeld Terra College" id="schoolname" type="text" class="autocomplete"
-                            data-lpignore="true">
+                        <input placeholder="" id="schoolname" type="text" class="autocomplete" data-lpignore="true">
                     </div>
                     <br>
-                    <p>NM is open source! Click <a href="https://github.com/NoahvdAa/NM" target="_blank">here</a> to see
+                    <p data-lkey="login.schoolpicker.opensource">NM is open source! Click <a
+                            href="https://github.com/NoahvdAa/NM" target="_blank">here</a> to see
                         our GitHub repository.</p>
+                    <br>
+                    <div id="language-selector-schoolpicker"></div>
                 </div>
             </div>
             <div class="card" id="authentication" style="display: none;">
@@ -78,22 +85,24 @@
                     <div class="input-field">
                         <i class="material-icons prefix">person</i>
                         <input placeholder="" id="username" type="text">
-                        <label>Gebruikersnaam</label>
+                        <label data-lkey="login.auth.username">Username</label>
                     </div>
                     <div class="input-field">
                         <i class="material-icons prefix">lock</i>
                         <input placeholder="" id="password" type="password">
-                        <label>Wachtwoord</label>
+                        <label data-lkey="login.auth.password">Password</label>
                     </div>
                     <div class="row" id="wrongPassword" style="display: none;">
                         <div class="col">
                             <div class="card-panel red">
-                                <span class="white-text">
+                                <span class="white-text" data-lkey="login.auth.wrongpassword">
                                     De combinatie van deze gebruikersnaam en dit wachtwoord klopt niet.
                                 </span>
                             </div>
                         </div>
                     </div>
+                    <br>
+                    <div id="language-selector-auth"></div>
                 </div>
             </div>
         </div>
@@ -114,14 +123,18 @@
                     <a href="#"><span class="white-text schoolName">...</span></a>
                 </div>
             </li>
-            <li data-tab="dashboard"><a href="#"><i class="material-icons">dashboard</i>Dashboard</a></li>
-            <li data-tab="calendar"><a href="#"><i class="material-icons">calendar_today</i>Agenda</a></li>
-            <li data-tab="grades"><a href="#"><i class="material-icons">grade</i>Cijfers</a></li>
-            <li data-tab="messages"><a href="#"><i class="material-icons">message</i>Berichten</a></li>
+            <li data-tab="dashboard"><a href="#"><i class="material-icons">dashboard</i><span data-lkey="sidebar.tab.dashboard">Dashboard</span></a></li>
+            <li data-tab="calendar"><a href="#"><i class="material-icons">calendar_today</i><span data-lkey="sidebar.tab.calendar">Calendar</span></a></li>
+            <li data-tab="grades"><a href="#"><i class="material-icons">grade</i><span data-lkey="sidebar.tab.grades">Grades</span></a></li>
+            <li data-tab="messages"><a href="#"><i class="material-icons">message</i><span data-lkey="sidebar.tab.messages">Messages</span></a></li>
             <li>
                 <div class="divider"></div>
             </li>
-            <li data-tab="personalization"><a href="#"><i class="material-icons">brush</i>Personalisatie</a></li>
+            <li data-tab="personalization"><a href="#"><i class="material-icons">brush</i><span data-lkey="sidebar.tab.personalization">Personalization</span></a></li>
+            <li>
+                <div class="divider"></div>
+            </li>
+            <div id="language-selector-sidebar" style="margin: 5px;"></div>
         </ul>
         <div class="tabs">
             <div class="tab tab-dashboard">
@@ -162,7 +175,35 @@
     var validSchools = {};
     var niceNames = {};
 
+    var languagesFile = {};
+    var language = 'en';
+
     $(document).ready(function () {
+
+        $.get('/languages.json', function (data, err) {
+            languagesFile = data;
+            connect();
+
+            if (localStorage.getItem("language") != null) {
+                if (languagesFile.availableLanguages.indexOf(localStorage.getItem("language")) != -1) {
+                    language = localStorage.getItem("language");
+                } else {
+                    if (languagesFile.availableLanguages.indexOf(navigator.language || navigator.userLanguage) == -1) language = 'en';
+                    else language = navigator.language || navigator.userLanguage;
+                }
+            } else {
+                if (languagesFile.availableLanguages.indexOf(navigator.language || navigator.userLanguage) == -1) language = 'en';
+                else language = navigator.language || navigator.userLanguage;
+            }
+
+            localStorage.setItem("language", language);
+
+            setLocalizedValues();
+
+            makeLanguagePicker('language-selector-schoolpicker');
+            makeLanguagePicker('language-selector-auth');
+            makeLanguagePicker('language-selector-sidebar');
+        });
 
         switchTab('dashboard');
 
@@ -173,8 +214,6 @@
             limit: 10,
             minLength: 1
         });
-
-        connect();
 
         $(".menu > li").click(function () {
             if (!$(this).data('tab')) return;
@@ -372,6 +411,59 @@
         var formattedFrom = addZeroIfRequired(from.getDate()) + '-' + addZeroIfRequired(from.getMonth() + 1) + '-' + from.getFullYear();
         var formattedTo = addZeroIfRequired(to.getDate()) + '-' + addZeroIfRequired(to.getMonth() + 1) + '-' + to.getFullYear();
         window.socket.send(JSON.stringify({ "type": "appointments", "content": JSON.stringify([formattedFrom, formattedTo]) }));
+    }
+
+    function setLocalizedValues() {
+        $("[data-lkey]").each(function () {
+            $(this).html(languagesFile[language][$(this).data('lkey')]);
+        });
+    }
+
+    window.lPickers = {};
+    window.globalChangeLPicker = false;
+
+    function makeLanguagePicker(id) {
+        document.getElementById(id).addEventListener('changed', function (e) {
+            if(window.globalChangeLPicker) return;
+            var values = window.lPickers[id].getSelectedValue().split(';');
+            language = values[1];
+            localStorage.setItem("language",language);
+
+            setLocalizedValues();
+
+            window.globalChangeLPicker = true;
+            Object.keys(window.lPickers).forEach(pickerKey=>{
+                picker = window.lPickers[pickerKey];
+                picker.setSelectedIndex(values[0]);
+            });
+            window.globalChangeLPicker = false;
+        });
+
+        window.lPickers[id] = new IconSelect(id,
+            {
+                'selectedIconWidth': 48,
+                'selectedIconHeight': 48,
+                'selectedBoxPadding': 1,
+                'iconsWidth': 23,
+                'iconsHeight': 23,
+                'boxIconSpace': 1,
+                'vectoralIconNumber': 4,
+                'horizontalIconNumber': 4
+            });
+        var icons = [];
+
+        var i = 0;
+
+        icons.push({ 'iconFilePath': '/img/flag-' + language + '.svg', 'iconValue': i + ';' + language });
+
+        languagesFile.availableLanguages.forEach(l => {
+            if (l == language) return;
+            i++;
+            icons.push({ 'iconFilePath': '/img/flag-' + l + '.svg', 'iconValue': i + ';' + l });
+        });
+
+        window.lPickers[id].refresh(icons);
+
     }
 
     setInterval(function () {
