@@ -13,7 +13,7 @@ var commitHash = 'unknown';
 fetch('https://api.github.com/repos/NoahvdAa/NM/commits/master')
   .then(res => res.json())
   .then(json => {
-    commitHash = json.commit.tree.sha;
+    commitHash = json.sha;
   });
 
 var { default: magister, getSchools } = require('magister.js');

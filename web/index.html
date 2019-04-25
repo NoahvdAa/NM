@@ -303,7 +303,7 @@
                 var info = JSON.parse(content);
 
                 if (info.gitHash != 'unknown') {
-                    $("#commit").html('<a href="https://github.com/NoahvdAa/NM/commit/' + info.gitHash + '"><i class="fas fa-code-branch"></i> ' + info.gitHash + '</a>')
+                    $("#commit").html('<a href="https://github.com/NoahvdAa/NM/commit/' + info.gitHash + '" target="_blank"><i class="fas fa-code-branch"></i> ' + info.gitHash + '</a>')
                 }
             } else if (type == 'schools') {
                 var schools = JSON.parse(content);
