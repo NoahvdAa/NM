@@ -1,10 +1,20 @@
 // Clear tmp directory
 var fs = require('fs');
 var rimraf = require("rimraf");
-rimraf("tmp/", function () { 
+rimraf("tmp/", function () {
   fs.mkdirSync('tmp');
   fs.mkdirSync('tmp/img');
 });
+
+const fetch = require('node-fetch');
+
+var commitHash = 'unknown';
+
+fetch('https://api.github.com/repos/NoahvdAa/NM/commits/master')
+  .then(res => res.json())
+  .then(json => {
+    commitHash = json.commit.tree.sha;
+  });
 
 var { default: magister, getSchools } = require('magister.js');
 
@@ -34,8 +44,7 @@ app.ws('/magister', async function (ws, req) {
   ws.send(JSON.stringify({
     "type": "serverInfo",
     "content": JSON.stringify({
-      // This environment value is set by Heroku.
-      "gitHash": process.env.SOURCE_VERSION || "unknown"
+      "gitHash": commitHash
     })
   }));
 
@@ -122,12 +131,12 @@ app.ws('/magister', async function (ws, req) {
 
       ws.send(JSON.stringify({ "type": "profileInfo", "content": JSON.stringify(profileInfo) }));
 
-      ws.session.profileInfo.getProfilePicture().then(s=>{
+      ws.session.profileInfo.getProfilePicture().then(s => {
         var id = crypto.randomBytes(20).toString('hex');
-        s.pipe(fs.createWriteStream('tmp/img/'+id+'.png'))
-        .on('finish',function(){
-          ws.send('{"type":"profilePicture","content":"/img/'+id+'.png"}');
-        });
+        s.pipe(fs.createWriteStream('tmp/img/' + id + '.png'))
+          .on('finish', function () {
+            ws.send('{"type":"profilePicture","content":"/img/' + id + '.png"}');
+          });
       });
     } else if (message.type == 'appointments') {
       try {
@@ -149,5 +158,5 @@ app.ws('/magister', async function (ws, req) {
 });
 
 app.listen(process.env.PORT || 80, function () {
-  console.log('Listening on port '+(process.env.PORT || 80)+'!');
+  console.log('Listening on port ' + (process.env.PORT || 80) + '!');
 });
