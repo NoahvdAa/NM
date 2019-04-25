@@ -10,7 +10,10 @@
         "sidebar.tab.calendar": "Calendar",
         "sidebar.tab.grades": "Grades",
         "sidebar.tab.messages": "Messages",
-        "sidebar.tab.personalization": "Personalization"
+        "sidebar.tab.personalization": "Personalization",
+        "calendar.datepicker.dates": "Dates",
+        "calendar.datepicker.from": "From",
+        "calendar.datepicker.to": "Up to and including"
     },
     "nl": {
         "login.schoolpicker.welcome": "Welkom bij NM. Kies je school.",
@@ -22,6 +25,9 @@
         "sidebar.tab.calendar": "Kalender",
         "sidebar.tab.grades": "Cijfers",
         "sidebar.tab.messages": "Berichten",
-        "sidebar.tab.personalization": "Personalisatie"
+        "sidebar.tab.personalization": "Personalisatie",
+        "calendar.datepicker.dates": "Data",
+        "calendar.datepicker.from": "Vanaf",
+        "calendar.datepicker.to": "Tot en Met"
     }
 }
