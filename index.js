@@ -25,10 +25,16 @@ var app = express();
 var expressWs = require('express-ws')(app);
 var cookieParser = require('cookie-parser');
 var crypto = require('crypto');
+const striptags = require('striptags');
+const stripquotes = require('stripquotes');
 
 app.use(express.static('web/'));
 app.use(express.static('tmp/'));
 app.use(cookieParser());
+
+app.get('/color/:hex', function(req,res){
+  res.send('<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><g><rect fill="#'+stripquotes(striptags(req.params.hex))+'" id="canvas_background" height="102" width="102" y="-1" x="-1"/></g></svg>');
+});
 
 app.get('/set_session', async function (req, res) {
   if (typeof (req.query.schoolname) == 'undefined' || typeof (req.query.session) == 'undefined') {
