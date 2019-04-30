@@ -36,6 +36,9 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
 
+    <!-- OpenPGP.js for encryption -->
+    <script src="/js/openpgp.min.js"></script>
+
     <title>NM</title>
 </head>
 
@@ -73,6 +76,9 @@
                     <p data-lkey="login.schoolpicker.opensource">NM is open source! Click <a
                             href="https://github.com/NoahvdAa/NM" target="_blank">here</a> to see
                         our GitHub repository.</p>
+                    <br>
+                    <p><img src="/img/lock.svg" width="25px;">&nbsp;<span data-lkey="login.security.encrypted"></span>
+                    </p>
                     <br>
                     <div id="language-selector-schoolpicker"></div>
                     <br>
@@ -153,7 +159,8 @@
             <div class="tab tab-calendar">
                 <ul id="calendarPicker" class="sidenav sidenav-fixed calendarPicker">
                     <li>
-                        <i class="material-icons">calendar_today</i><span data-lkey="calendar.datepicker.dates">Dates</span>
+                        <i class="material-icons">calendar_today</i><span
+                            data-lkey="calendar.datepicker.dates">Dates</span>
                         <br>
                         <span data-lkey="calendar.datepicker.from">From</span>: <input type="date" id="calendar-from">
                         <br>
@@ -188,11 +195,22 @@
     var languagesFile = {};
     var language = 'en';
 
+    var serverPublicKey = '';
+    var privateKey = '';
+    var publicKey = '';
+
+    var pgpOptions = {
+        userIds: [{ "name": makeRandomString(10), "email": makeRandomString(5) + "@" + makeRandomString(10) + ".com" }],
+        numBits: 2048,
+        passphrase: makeRandomString(20)
+    };
+
     $(document).ready(function () {
+
+        window.openpgp.initWorker({ path: '/js/openpgp.worker.js' });
 
         $.get('/languages.json', function (data, err) {
             languagesFile = data;
-            connect();
 
             if (localStorage.getItem("language") != null) {
                 if (languagesFile.availableLanguages.indexOf(localStorage.getItem("language")) != -1) {
@@ -213,6 +231,14 @@
             makeLanguagePicker('language-selector-schoolpicker');
             makeLanguagePicker('language-selector-auth');
             makeLanguagePicker('language-selector-sidebar');
+
+            openpgp.generateKey(pgpOptions).then(function (key) {
+                window.privateKey = key.privateKeyArmored;
+                window.publicKey = key.publicKeyArmored;
+
+                console.log('Generated PGP keys.');
+                connect();
+            });
         });
 
         switchTab('dashboard');
@@ -231,7 +257,7 @@
         });
 
         $('#schoolname').on('input', function () {
-            window.socket.send(JSON.stringify({ "type": "getSchools", "content": $('#schoolname').val() }));
+            window.socket.encSend(JSON.stringify({ "type": "getSchools", "content": $('#schoolname').val() }));
         });
 
         $('.proceedto-auth').click(function () {
@@ -246,7 +272,7 @@
         $('.proceedto-login').click(function () {
             if (!$('.proceedto-login').hasClass('disabled')) {
                 var data = [validSchools[$("#schoolname").val().toLowerCase()], $("#username").val(), $("#password").val()];
-                window.socket.send(JSON.stringify({ "type": "login", "content": JSON.stringify(data) }));
+                window.socket.encSend(JSON.stringify({ "type": "login", "content": JSON.stringify(data) }));
             }
         });
 
@@ -276,8 +302,23 @@
             $("#connecting").fadeOut(1000);
         };
 
-        window.socket.onmessage = function (event) {
-            var message = event.data;
+        window.socket.encSend = async function (message) {
+            window.socket.send(await encrypt(message, serverPublicKey));
+        }
+
+        window.socket.onmessage = async function (event) {
+            if (event.data.startsWith('-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
+                window.serverPublicKey = event.data;
+                window.socket.send(publicKey);
+                return;
+            }
+
+            try {
+                var message = await decrypt(event.data, privateKey);
+            } catch (e) {
+                return console.error('INVALID PGP RECEIVED: ' + event.data);
+            }
+
             try {
                 var decoded = JSON.parse(message);
             } catch (e) {
@@ -330,7 +371,7 @@
             } else if (type == 'login_success') {
                 resetCalendar();
                 loggedIn = true;
-                window.socket.send('{"type":"profileInfo","content":""}');
+                window.socket.encSend('{"type":"profileInfo","content":""}');
                 $("#magister").show();
                 $("#loginContainer").fadeOut(500);
                 $(".login").fadeOut(500);
@@ -426,7 +467,7 @@
         var to = new Date($("#calendar-to").val());
         var formattedFrom = addZeroIfRequired(from.getDate()) + '-' + addZeroIfRequired(from.getMonth() + 1) + '-' + from.getFullYear();
         var formattedTo = addZeroIfRequired(to.getDate()) + '-' + addZeroIfRequired(to.getMonth() + 1) + '-' + to.getFullYear();
-        window.socket.send(JSON.stringify({ "type": "appointments", "content": JSON.stringify([formattedFrom, formattedTo]) }));
+        window.socket.encSend(JSON.stringify({ "type": "appointments", "content": JSON.stringify([formattedFrom, formattedTo]) }));
     }
 
     function setLocalizedValues() {
@@ -480,6 +521,38 @@
 
         window.lPickers[id].refresh(icons);
 
+    }
+
+    function makeRandomString(length) {
+        var result = '';
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        for (var i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+    async function encrypt(message, publickey) {
+        const options = {
+            message: openpgp.message.fromText(message),
+            publicKeys: (await openpgp.key.readArmored(publickey)).keys
+        }
+
+        var ciphertext = await openpgp.encrypt(options);
+        return ciphertext.data;
+    }
+
+    async function decrypt(message, privateKey) {
+        const privKeyObj = (await openpgp.key.readArmored(privateKey.replace(/\r/, ''))).keys[0];
+        await privKeyObj.decrypt(pgpOptions.passphrase);
+        const options = {
+            message: await openpgp.message.readArmored(message),
+            privateKeys: [privKeyObj]
+        }
+
+        var ciphertext = await openpgp.decrypt(options);
+        return ciphertext.data;
     }
 
     setInterval(function () {

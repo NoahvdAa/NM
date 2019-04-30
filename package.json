@@ -23,6 +23,7 @@
     "express-ws": "^4.0.0",
     "magister.js": "^2.0.0-alpha.11",
     "node-fetch": "^2.3.0",
+    "openpgp": "^4.4.10",
     "rimraf": "^2.6.3",
     "stripquotes": "^0.2.8",
     "striptags": "^3.1.1",
