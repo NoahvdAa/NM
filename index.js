@@ -6,16 +6,6 @@ rimraf("tmp/", function () {
   fs.mkdirSync('tmp/img');
 });
 
-const fetch = require('node-fetch');
-
-var commitHash = 'unknown';
-
-fetch('https://api.github.com/repos/NoahvdAa/NM/commits/master')
-  .then(res => res.json())
-  .then(json => {
-    commitHash = json.sha;
-  });
-
 var { default: magister, getSchools } = require('magister.js');
 
 var schoolsByID = {};
@@ -86,11 +76,12 @@ app.ws('/magister', async function (ws, req) {
   ws.on('message', async function (msg) {
     if (msg.includes('-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
       ws.publicKey = msg;
+      var serverInfo = JSON.stringify({
+
+      });
       ws.encSend(JSON.stringify({
         "type": "serverInfo",
-        "content": JSON.stringify({
-          "gitHash": commitHash
-        })
+        "content": serverInfo
       }));
 
       return;

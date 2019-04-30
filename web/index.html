@@ -81,8 +81,6 @@
                     </p>
                     <br>
                     <div id="language-selector-schoolpicker"></div>
-                    <br>
-                    <span id="commit"></span>
                 </div>
             </div>
             <div class="card" id="authentication" style="display: none;">
@@ -343,9 +341,6 @@
             } else if (type == 'serverInfo') {
                 var info = JSON.parse(content);
 
-                if (info.gitHash != 'unknown') {
-                    $("#commit").html('<a href="https://github.com/NoahvdAa/NM/commit/' + info.gitHash + '" target="_blank"><i class="fas fa-code-branch"></i> ' + info.gitHash + '</a>')
-                }
             } else if (type == 'schools') {
                 var schools = JSON.parse(content);
                 if (schools.length != 0) {
