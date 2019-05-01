@@ -322,7 +322,6 @@
                 } catch (e) {
                     return console.error('INVALID MESSAGE RECEIVED: ' + message);
                 }
-                
             }
 
             try {
@@ -369,6 +368,7 @@
                     minLength: 1
                 });
                 $('#schoolname').trigger('updateData');
+                M.Autocomplete.getInstance($('#schoolname')).open();
             } else if (type == 'fastlogin') {
                 $(".schoolName").text(content);
             } else if (type == 'login_success') {
