@@ -1,6 +1,7 @@
 {
     "availableLanguages": ["en", "nl"],
     "en": {
+        "login.encrypting": "Encrypting connection...",
         "login.schoolpicker.welcome": "Welcome to NM. Choose your school.",
         "login.schoolpicker.opensource": "NM is open source! Click <a href='https://github.com/NoahvdAa/NM' target='_blank'>here</a> to visit our GitHub repository.",
         "login.auth.username": "Username",
@@ -17,6 +18,7 @@
         "calendar.datepicker.to": "Up to and including"
     },
     "nl": {
+        "login.encrypting": "Verbinding versleutelen...",
         "login.schoolpicker.welcome": "Welkom bij NM. Kies je school.",
         "login.schoolpicker.opensource": "NM is open source! Klik <a href='https://github.com/NoahvdAa/NM' target='_blank'>hier</a> om onze GitHub respository te bezoeken.",
         "login.auth.username": "Gebruikersnaam",

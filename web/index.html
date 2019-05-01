@@ -44,8 +44,13 @@
 
 <body>
 
+    <div id="encrypting"
+        style="background-color: #ef6c00; background-image: url(/img/loading.svg) center no-repeat; background-size: 12.5%; left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 9999; text-align: center; font-size: 50px; color: white;">
+        <p data-lkey="login.encrypting">Encrypting connection...</p>
+    </div>
+
     <div id="connecting"
-        style="background-color: #ef6c00; background-image: url(/img/loading.svg) center no-repeat; background-size: 12.5%; left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 999;">
+        style="background-color: #ef6c00; background-image: url(/img/loading.svg) center no-repeat; background-size: 12.5%; left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 9999; display: none;">
         &nbsp;
     </div>
 
@@ -236,6 +241,7 @@
 
                 console.log('Generated PGP keys.');
                 connect();
+                $("#encrypting").fadeOut(500);
             });
         });
 
