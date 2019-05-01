@@ -79,7 +79,7 @@ app.ws('/magister', async function (ws, req) {
       var serverInfo = JSON.stringify({
 
       });
-      ws.encSend(JSON.stringify({
+      ws.send(JSON.stringify({
         "type": "serverInfo",
         "content": serverInfo
       }));
