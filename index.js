@@ -38,8 +38,8 @@ app.get('/set_session', async function (req, res) {
 
 app.ws('/magister', async function (ws, req) {
 
-  ws.encSend = async function(msg){
-    if(!ws.publicKey) return setTimeout(function(){ws.encSend(msg);},1000); // Try again later.
+  ws.encSend = async function (msg) {
+    if (!ws.publicKey) return setTimeout(function () { ws.encSend(msg); }, 1000); // Try again later.
     var message = await encrypt(msg, ws.publicKey);
     ws.send(message);
   }
@@ -50,7 +50,7 @@ app.ws('/magister', async function (ws, req) {
     if (typeof (req.cookies.schoolName) != 'undefined' && typeof (req.cookies.session) != 'undefined') {
       getSchools(req.cookies.schoolName).then(s => {
         if (s.length == 0) {
-          ws.encSend('{"type":"loginRequired","content":"invalidSchool"}');
+          ws.send('{"type":"loginRequired","content":"invalidSchool"}');
         } else {
           magister({
             school: s[0],
@@ -62,15 +62,15 @@ app.ws('/magister', async function (ws, req) {
               ws.encSend(`{"type":"login_success","content":"${m.token}"}`);
             }, (err) => {
               // Login Failed
-              ws.encSend('{"type":"loginRequired","content":"tokenExpired"}');
+              ws.send('{"type":"loginRequired","content":"tokenExpired"}');
             });
         }
       })
     } else {
-      ws.encSend('{"type":"loginRequired","content":""}');
+      ws.send('{"type":"loginRequired","content":""}');
     }
   } else {
-    ws.encSend('{"type":"loginRequired","content":""}');
+    ws.send('{"type":"loginRequired","content":""}');
   }
 
   ws.on('message', async function (msg) {
@@ -90,27 +90,34 @@ app.ws('/magister', async function (ws, req) {
     // Deny all messages if no public key is sent yet.
     if (!ws.publicKey) return;
 
+    var message = msg;
+
     try {
-      message = await decrypt(msg, privateKey);
+      message = await decrypt(message, privateKey);
     } catch (e) {
-      return ws.encSend('{"error":"msg_must_be_pgp"}');
+      try {
+        JSON.parse(message);
+        // Message received is non-pgp but json-parsable, continue.
+      } catch (e) {
+        // Fail silently
+      }
     }
 
     try {
       message = JSON.parse(message);
     } catch (e) {
-      return ws.encSend('{"error":"msg_must_be_json"}');
+      return ws.send('{"error":"msg_must_be_json"}');
     }
 
     if (typeof (message.type) == 'undefined') {
-      return ws.encSend('{"error":"type_not_specified"}');
+      return ws.send('{"error":"type_not_specified"}');
     } else if (typeof (message.content) == 'undefined') {
-      return ws.encSend('{"error":"content_not_specified"}');
+      return ws.send('{"error":"content_not_specified"}');
     }
 
     if (message.type == 'getSchools') {
       getSchools(message.content).then((schools) => {
-        ws.encSend(JSON.stringify({ "type": "schools", "content": JSON.stringify(schools.map(s => [s.name, s.id])) }));
+        ws.send(JSON.stringify({ "type": "schools", "content": JSON.stringify(schools.map(s => [s.name, s.id])) }));
         schools.forEach(s => {
           schoolsByID[s.id] = s;
         });
@@ -120,11 +127,11 @@ app.ws('/magister', async function (ws, req) {
       try {
         var content = JSON.parse(message.content);
       } catch (e) {
-        return ws.encSend('{"error":"invalid_json"}');
+        return ws.send('{"error":"invalid_json"}');
       }
-      if (typeof (ws.session) != 'undefined') return ws.encSend('{"error":"already_logged_in"}');
-      if (content.length != 3) return ws.encSend('{"error":"invalid_format"}');
-      if (typeof (schoolsByID[content[0]]) == 'undefined') return ws.encSend('{"error":"invalid_school"}');
+      if (typeof (ws.session) != 'undefined') return ws.send('{"error":"already_logged_in"}');
+      if (content.length != 3) return ws.send('{"error":"invalid_format"}');
+      if (typeof (schoolsByID[content[0]]) == 'undefined') return ws.send('{"error":"invalid_school"}');
       magister({
         school: schoolsByID[content[0]],
         username: content[1],
@@ -134,12 +141,12 @@ app.ws('/magister', async function (ws, req) {
           ws.session = m;
           ws.encSend(`{"type":"login_success","content":"${m.token}"}`);
         }, (err) => {
-          ws.encSend(`{"error":"${err.toString()}"}`);
+          ws.send(`{"error":"${err.toString()}"}`);
         });
       return;
     }
 
-    if (typeof (ws.session) == 'undefined') return ws.encSend('{"error":"not_logged_in"}');
+    if (typeof (ws.session) == 'undefined') return ws.send('{"error":"not_logged_in"}');
 
     // These functions are only available when you are logged in.
 
@@ -162,7 +169,7 @@ app.ws('/magister', async function (ws, req) {
       try {
         var content = JSON.parse(message.content);
       } catch (e) {
-        return ws.encSend('{"error":"invalid_json"}');
+        return ws.send('{"error":"invalid_json"}');
       }
       if (content.length != 2) return ws.encSend('{"error":"must_specify_two_dates"}');
 

@@ -255,7 +255,7 @@
         });
 
         $('#schoolname').on('input', function () {
-            window.socket.encSend(JSON.stringify({ "type": "getSchools", "content": $('#schoolname').val() }));
+            window.socket.send(JSON.stringify({ "type": "getSchools", "content": $('#schoolname').val() }));
         });
 
         $('.proceedto-auth').click(function () {
@@ -311,10 +311,18 @@
                 return;
             }
 
+            var message = event.data
+
             try {
-                var message = await decrypt(event.data, privateKey);
+                message = await decrypt(message, privateKey);
             } catch (e) {
-                return console.error('INVALID PGP RECEIVED: ' + event.data);
+                try {
+                    JSON.parse(message);
+                    //Message received is non-pgp but json-parsable, continue.
+                } catch (e) {
+                    return console.error('INVALID MESSAGE RECEIVED: ' + message);
+                }
+                
             }
 
             try {
@@ -366,7 +374,7 @@
             } else if (type == 'login_success') {
                 resetCalendar();
                 loggedIn = true;
-                window.socket.encSend('{"type":"profileInfo","content":""}');
+                window.socket.send('{"type":"profileInfo","content":""}');
                 $("#magister").show();
                 $("#loginContainer").fadeOut(500);
                 $(".login").fadeOut(500);
@@ -462,7 +470,7 @@
         var to = new Date($("#calendar-to").val());
         var formattedFrom = addZeroIfRequired(from.getDate()) + '-' + addZeroIfRequired(from.getMonth() + 1) + '-' + from.getFullYear();
         var formattedTo = addZeroIfRequired(to.getDate()) + '-' + addZeroIfRequired(to.getMonth() + 1) + '-' + to.getFullYear();
-        window.socket.encSend(JSON.stringify({ "type": "appointments", "content": JSON.stringify([formattedFrom, formattedTo]) }));
+        window.socket.send(JSON.stringify({ "type": "appointments", "content": JSON.stringify([formattedFrom, formattedTo]) }));
     }
 
     function setLocalizedValues() {
