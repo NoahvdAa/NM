@@ -400,7 +400,6 @@
                 } else {
                     $(".appointments").html('');
                     var date = new Date(0);
-                    var c = 0;
                     var newHTML = $(".appointments").html();
                     appointments.forEach(a => {
                         // Hide cancelled appointments.
@@ -408,9 +407,9 @@
 
                         if (new Date(a.start).getDate() != date.getDate()) {
                             // New day!
-                            if (c != 0) newHTML += '</tbody></table>';
+                            newHTML += '</div>';
                             date = new Date(a.start);
-                            newHTML += '<table><thead><tr><td><strong>' + date.toLocaleDateString() + '</strong></td></tr></thead><tbody>';
+                            newHTML += '<div class="collection"><a class="collection-item"><strong>' + ([addZeroIfRequired(date.getDate()),addZeroIfRequired(date.getMonth()+1),addZeroIfRequired(date.getFullYear())].join('-')) + '</strong></a>';
                         }
 
                         var hours = '';
@@ -419,22 +418,22 @@
                             for (var i = a.startBySchoolhour; i <= a.endBySchoolhour; i++) {
                                 list.push(i);
                             }
-                            hours = '<span class="badge black">' + list.join('-') + '</span> | ';
+                            hours = '<span class="badge black">' + list.join('-') + '</span>';
                         }
 
                         // Information has changed? Make it blue.
-                        var extraHTML = '';
-                        if (a.isChanged) extraHTML = ' class="blue lighten-3"';
+                        var extraClasses = '';
+                        if (a.isChanged) extraClasses = ' blue lighten-3';
 
                         // Show location if specified.
                         var location = '';
                         if (a.location) location = ' (' + a.location + ')';
 
-                        newHTML += '<tr' + extraHTML + '><td>';
-                        newHTML += '<p>' + hours + a.description + location + '</p>';
-                        newHTML += '</td></tr>';
+                        newHTML += '<a href="#!" class="collection-item'+extraClasses+'">';
+                        newHTML += hours + a.description + location;
+                        newHTML += '</a>';
                     });
-                    $(".appointments").html(newHTML + '</tbody></table>');
+                    $(".appointments").html(newHTML + '</div>');
                 }
             } else if (type == 'profilePicture') {
                 $(".profilePicture").attr('src', content);
@@ -592,11 +591,6 @@
         overflow-x: visible !important;
         overflow-y: visible !important;
         text-align: left !important;
-    }
-
-    td,
-    th {
-        padding: 2.5px !important;
     }
 
     @media only screen and (min-width: 993px) {
