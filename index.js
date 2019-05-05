@@ -39,7 +39,7 @@ app.get('/set_session', async function (req, res) {
 app.ws('/magister', async function (ws, req) {
 
   ws.encSend = async function (msg) {
-    if (!ws.publicKey) return setTimeout(function () { ws.encSend(msg); }, 1000); // Try again later.
+    if (!ws.publicKey || ws.readyState != 1) return setTimeout(function () { ws.encSend(msg); }, 100); // Try again after 100ms.
     var message = await encrypt(msg, ws.publicKey);
     ws.send(message);
   }
