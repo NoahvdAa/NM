@@ -188,8 +188,23 @@
         </div>
     </div>
 
+    <div id="devTools" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h4>Super Secret Devtools</h4><input type="checkbox" name="vehicle1" value="Bike">
+            <p><label><input id="debugMode" type="checkbox" class="filled-in"
+                        onchange="localStorage.setItem('debugMode',this.checked);debugMode = this.checked.toString();" /><span>Debug
+                        Mode</span></label></p>
+            <p><button class="waves-effect waves-light btn red" onclick="deleteAllCookies();"><i
+                        class="material-icons left">delete_forever</i>Clear Cookies</button></p>
+        </div>
+    </div>
+
 </body>
 <script>
+    if (localStorage.getItem('debugMode') == null) localStorage.setItem('debugMode', 'false');
+    var debugMode = localStorage.getItem('debugMode');
+    if (debugMode == 'true') $("#debugMode").attr('checked', 'checked');
+
     var currentTab = 'none';
     var loggedIn = false;
     var validSchools = {};
@@ -210,9 +225,14 @@
 
     $(document).ready(function () {
 
+        // Initialize all modals.
+        $('.modal').modal();
+
         window.openpgp.initWorker({ path: '/js/openpgp.worker.js' });
 
+        debug('Fetching language file...');
         $.get('/languages.json', function (data, err) {
+            debug('Got language file!');
             languagesFile = data;
 
             if (localStorage.getItem("language") != null) {
@@ -295,22 +315,32 @@
         if (window.location.protocol == 'https:') {
             protocol = 'wss://';
         }
+        debug('[SOCKET] Using ' + protocol + ' for websocket connection.');
         window.socket = new WebSocket(protocol + window.location.hostname + '/magister');
 
         window.socket.onerror, window.socket.onclose = function () {
+            debug('[SOCKET] Lost connection to socket. Reconnecting in 1000ms.');
             $("#connecting").fadeIn(1000);
             setTimeout(connect, 1000);
         };
 
         window.socket.onopen = function () {
+            debug('[SOCKET] Connected.');
             $("#connecting").fadeOut(1000);
         };
+
+        window.socket.originalSend = window.socket.send;
+        window.socket.send = function (message) {
+            debug('[SOCKET] ⇧ ' + message);
+            window.socket.originalSend(message);
+        }
 
         window.socket.encSend = async function (message) {
             window.socket.send(await encrypt(message, serverPublicKey));
         }
 
         window.socket.onmessage = async function (event) {
+            debug('[SOCKET] ⇩ ' + event.data);
             if (event.data.startsWith('-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
                 window.serverPublicKey = event.data;
                 window.socket.send(publicKey);
@@ -322,28 +352,27 @@
             try {
                 message = await decrypt(message, privateKey);
             } catch (e) {
-                try {
-                    JSON.parse(message);
-                    //Message received is non-pgp but json-parsable, continue.
-                } catch (e) {
-                    return console.error('INVALID MESSAGE RECEIVED: ' + message);
-                }
+                debug('[SOCKET] [PGP] Failed to decrypt raw message. Maybe it is already decrypted?', 'warning');
             }
 
             try {
                 var decoded = JSON.parse(message);
             } catch (e) {
-                return console.error('INVALID JSON RECEIVED: ' + message);
+                debug('[SOCKET] [JSON] Received invalid JSON message: ' + message, 'warning');
             }
 
+            debug('[SOCKET] [JSON] Parsed JSON: ' + JSON.stringify(decoded));
+
             if (typeof (decoded.error) != 'undefined') {
+                debug('[SOCKET] [ERROR] Got error: ' + decoded.error, 'error');
                 if (decoded.error.startsWith('AuthError')) {
                     $("#wrongPassword").fadeIn(100);
                 }
+                return;
             }
 
-            if (typeof (decoded.type) == 'undefined') return console.warn('No type found. Ignoring message.');
-            if (typeof (decoded.content) == 'undefined') return console.warn('No content found. Ignoring message.');
+            if (typeof (decoded.type) == 'undefined') return debug('[SOCKET] Received message without type.');
+            if (typeof (decoded.content) == 'undefined') return debug('[SOCKET] Received message without content.');
 
             var type = decoded.type;
             var content = decoded.content;
@@ -353,7 +382,6 @@
                 else $("#loginContainer").fadeIn(1000);
             } else if (type == 'serverInfo') {
                 var info = JSON.parse(content);
-
             } else if (type == 'schools') {
                 var schools = JSON.parse(content);
                 if (schools.length != 0) {
@@ -409,7 +437,7 @@
                             // New day!
                             newHTML += '</div>';
                             date = new Date(a.start);
-                            newHTML += '<div class="collection"><a class="collection-item"><strong>' + ([addZeroIfRequired(date.getDate()),addZeroIfRequired(date.getMonth()+1),addZeroIfRequired(date.getFullYear())].join('-')) + '</strong></a>';
+                            newHTML += '<div class="collection"><a class="collection-item"><strong>' + ([addZeroIfRequired(date.getDate()), addZeroIfRequired(date.getMonth() + 1), addZeroIfRequired(date.getFullYear())].join('-')) + '</strong></a>';
                         }
 
                         var hours = '';
@@ -429,7 +457,7 @@
                         var location = '';
                         if (a.location) location = ' (' + a.location + ')';
 
-                        newHTML += '<a href="#!" class="collection-item'+extraClasses+'">';
+                        newHTML += '<a href="#!" class="collection-item' + extraClasses + '">';
                         newHTML += hours + a.description + location;
                         newHTML += '</a>';
                     });
@@ -482,6 +510,26 @@
         $("[data-lkey]").each(function () {
             $(this).html(languagesFile[language][$(this).data('lkey')]);
         });
+    }
+
+    function deleteAllCookies() {
+        var cookies = document.cookie.split(";");
+
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i];
+            var eqPos = cookie.indexOf("=");
+            var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        }
+        
+        window.location.reload();
+    }
+
+    function debug(message, type = 'info') {
+        if (debugMode != 'true') return;
+        if (type == 'info') console.log('%c[DEBUG] [INFO] ' + message, 'background: #0074D9; padding: 2px;');
+        else if (type == 'warning') console.log('%c[DEBUG] [WARNING] ' + message, 'background: #FF851B; padding: 3px; color: black;');
+        else if (type == 'error') console.log('%c[DEBUG] [ERROR] ' + message, 'background: #FF4136; padding: 4px; color: black;');
     }
 
     window.lPickers = {};
@@ -582,6 +630,22 @@
     setInterval(function () {
         $(".tab:not(.tab-" + currentTab + ")").hide();
     }, 500);
+
+    // Super secret easter eggs and devtools, don't tell anyone!
+    var eEgg = [];
+    var eEggTrigger = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+
+    document.onkeydown = function (event) {
+        var key = event.key.toLowerCase();
+        if (eEgg.length == eEggTrigger.length) {
+            if (key == 'd') {
+                M.Modal.getInstance(document.getElementById("devTools")).open();
+            }
+            return eEgg = [];
+        }
+        if (eEggTrigger[eEgg.length] != key) return eEgg = [];
+        eEgg.push(key);
+    }
 </script>
 <style>
     /* CSS OVERRIDES */
