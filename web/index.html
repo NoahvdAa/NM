@@ -521,7 +521,7 @@
             var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
             document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
         }
-        
+
         window.location.reload();
     }
 
@@ -577,6 +577,13 @@
 
         window.lPickers[id].refresh(icons);
 
+    }
+
+    function stripMaterializeColorClasses(selector) {
+        var classes = ['red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'grey', 'blue-grey', 'black', 'white', 'lighten-5', 'lighten-4', 'lighten-3', 'lighten-2', 'lighten-1', 'darken-1', 'darken-2', 'darken-3', 'darken-4', 'accent-1', 'accent-2', 'accent-3', 'accent-4'];
+        classes.forEach(c=>{
+            $(selector).removeClass(c);
+        });
     }
 
     function makeRandomString(length) {
