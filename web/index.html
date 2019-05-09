@@ -428,16 +428,18 @@
                 } else {
                     $(".appointments").html('');
                     var date = new Date(0);
-                    var newHTML = $(".appointments").html();
+                    var newHTML = '<div class="row">';
+                    var i = 0;
                     appointments.forEach(a => {
                         // Hide cancelled appointments.
                         if (a.isCancelled) return;
+                        i++;
 
                         if (new Date(a.start).getDate() != date.getDate()) {
                             // New day!
-                            newHTML += '</div>';
+                            if(i != 1) newHTML += '</div></div></div>';
                             date = new Date(a.start);
-                            newHTML += '<div class="collection"><a class="collection-item"><strong>' + ([addZeroIfRequired(date.getDate()), addZeroIfRequired(date.getMonth() + 1), addZeroIfRequired(date.getFullYear())].join('-')) + '</strong></a>';
+                            newHTML += '<div class="col s12 m7"><div class="card"><div class="card-image orange darken-3"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="width: 0px; height: 100px;"><span class="card-title">'+languagesFile[language]['calendar.infocard.days'][date.getDay()]+', ' + ([addZeroIfRequired(date.getDate()), addZeroIfRequired(date.getMonth() + 1), addZeroIfRequired(date.getFullYear())].join('-')) + '</span></div><div class="card-content">';
                         }
 
                         var hours = '';
@@ -446,22 +448,22 @@
                             for (var i = a.startBySchoolhour; i <= a.endBySchoolhour; i++) {
                                 list.push(i);
                             }
-                            hours = '<span class="badge black">' + list.join('-') + '</span>';
+                            hours = '<span class="badge black left">' + list.join('-') + '</span>';
                         }
 
-                        // Information has changed? Make it blue.
-                        var extraClasses = '';
-                        if (a.isChanged) extraClasses = ' blue lighten-3';
+                        // Information has changed? Add changed badge
+                        var extraHTML = '';
+                        if (a.isChanged) extraHTML = '<span class="badge blue right" style="color: white;">!</span>';
 
                         // Show location if specified.
                         var location = '';
                         if (a.location) location = ' (' + a.location + ')';
 
-                        newHTML += '<a href="#!" class="collection-item' + extraClasses + '">';
-                        newHTML += hours + a.description + location;
+                        newHTML += '<a href="#!" class="collection-item">';
+                        newHTML += hours + a.description + location + extraHTML;
                         newHTML += '</a>';
                     });
-                    $(".appointments").html(newHTML + '</div>');
+                    $(".appointments").html(newHTML + '</div></div></div></div>');
                 }
             } else if (type == 'profilePicture') {
                 $(".profilePicture").attr('src', content);

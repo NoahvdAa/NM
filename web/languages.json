@@ -15,7 +15,8 @@
         "sidebar.tab.personalization": "Personalization",
         "calendar.datepicker.dates": "Dates",
         "calendar.datepicker.from": "From",
-        "calendar.datepicker.to": "Up to and including"
+        "calendar.datepicker.to": "Up to and including",
+        "calendar.infocard.days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     },
     "nl": {
         "login.encrypting": "Verbinding versleutelen...",
@@ -32,6 +33,7 @@
         "sidebar.tab.personalization": "Personalisatie",
         "calendar.datepicker.dates": "Data",
         "calendar.datepicker.from": "Vanaf",
-        "calendar.datepicker.to": "Tot en Met"
+        "calendar.datepicker.to": "Tot en Met",
+        "calendar.infocard.days": ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"]
     }
 }
