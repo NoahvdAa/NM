@@ -15,17 +15,11 @@ var app = express();
 var expressWs = require('express-ws')(app);
 var cookieParser = require('cookie-parser');
 var crypto = require('crypto');
-const striptags = require('striptags');
-const stripquotes = require('stripquotes');
 const openpgp = require('openpgp');
 
 app.use(express.static('web/'));
 app.use(express.static('tmp/'));
 app.use(cookieParser());
-
-app.get('/color/:hex', function (req, res) {
-  res.send('<svg xmlns="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="100" height="100" style=""><rect id="backgroundrect" width="100%" height="100%" x="0" y="0" fill="#'+stripquotes(striptags(req.params.hex))+'" stroke="none"/></svg>');
-});
 
 app.get('/set_session', async function (req, res) {
   if (typeof (req.query.schoolname) == 'undefined' || typeof (req.query.session) == 'undefined') {
