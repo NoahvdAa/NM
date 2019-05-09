@@ -19,7 +19,8 @@
         "calendar.datepicker.dates": "Dates",
         "calendar.datepicker.from": "From",
         "calendar.datepicker.to": "Up to and including",
-        "calendar.infocard.days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        "calendar.infocard.days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "personalization.themecolor": "Theme Colour:"
     },
     "nl": {
         "login.encrypting": "Verbinding versleutelen...",
@@ -37,6 +38,7 @@
         "calendar.datepicker.dates": "Data",
         "calendar.datepicker.from": "Vanaf",
         "calendar.datepicker.to": "Tot en Met",
-        "calendar.infocard.days": ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"]
+        "calendar.infocard.days": ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"],
+        "personalization.themecolor": "Themakleur:"
     }
 }
