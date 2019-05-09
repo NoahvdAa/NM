@@ -248,7 +248,7 @@
                 else language = navigator.language || navigator.userLanguage;
             }
 
-            if(languagesFile.languageAliases[rawLang]){
+            if (languagesFile.languageAliases[rawLang]) {
                 language = languagesFile.languageAliases[rawLang];
             }
 
@@ -442,9 +442,9 @@
 
                         if (new Date(a.start).getDate() != date.getDate()) {
                             // New day!
-                            if(i != 1) newHTML += '</div></div></div>';
+                            if (i != 1) newHTML += '</div></div></div>';
                             date = new Date(a.start);
-                            newHTML += '<div class="col s12 m7"><div class="card"><div class="card-image orange darken-3"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="width: 0px; height: 100px;"><span class="card-title">'+languagesFile[language]['calendar.infocard.days'][date.getDay()]+', ' + ([addZeroIfRequired(date.getDate()), addZeroIfRequired(date.getMonth() + 1), addZeroIfRequired(date.getFullYear())].join('-')) + '</span></div><div class="card-content">';
+                            newHTML += '<div class="col s12 m7"><div class="card"><div class="card-image orange darken-3"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="width: 0px; height: 100px;"><span class="card-title">' + languagesFile[language]['calendar.infocard.days'][date.getDay()] + ', ' + ([addZeroIfRequired(date.getDate()), addZeroIfRequired(date.getMonth() + 1), addZeroIfRequired(date.getFullYear())].join('-')) + '</span></div><div class="card-content">';
                         }
 
                         var hours = '';
@@ -588,7 +588,7 @@
 
     function stripMaterializeColorClasses(selector) {
         var classes = ['red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'grey', 'blue-grey', 'black', 'white', 'lighten-5', 'lighten-4', 'lighten-3', 'lighten-2', 'lighten-1', 'darken-1', 'darken-2', 'darken-3', 'darken-4', 'accent-1', 'accent-2', 'accent-3', 'accent-4'];
-        classes.forEach(c=>{
+        classes.forEach(c => {
             $(selector).removeClass(c);
         });
     }
