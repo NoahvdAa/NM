@@ -1,5 +1,8 @@
 {
     "availableLanguages": ["en", "nl"],
+    "languageAliases": {
+        "nl-NL": "nl"
+    },
     "en": {
         "login.encrypting": "Encrypting connection...",
         "login.schoolpicker.welcome": "Welcome to NM. Choose your school.",

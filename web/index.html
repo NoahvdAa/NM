@@ -234,6 +234,7 @@
         $.get('/languages.json', function (data, err) {
             debug('Got language file!');
             languagesFile = data;
+            var rawLang = navigator.language || navigator.userLanguage;
 
             if (localStorage.getItem("language") != null) {
                 if (languagesFile.availableLanguages.indexOf(localStorage.getItem("language")) != -1) {
@@ -245,6 +246,10 @@
             } else {
                 if (languagesFile.availableLanguages.indexOf(navigator.language || navigator.userLanguage) == -1) language = 'en';
                 else language = navigator.language || navigator.userLanguage;
+            }
+
+            if(languagesFile.languageAliases[rawLang]){
+                language = languagesFile.languageAliases[rawLang];
             }
 
             localStorage.setItem("language", language);
