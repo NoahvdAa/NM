@@ -124,10 +124,10 @@
         </div>
     </div>
     <div class="container" id="magister" style="display: none;">
-        <a href="#" data-target="nav" class="btn-floating red sidenav-trigger hide-on-large-only"><i
+        <a href="#" data-target="nav" class="menuShower btn-floating red sidenav-trigger hide-on-large-only"><i
                 class="material-icons">menu</i></a>
         <a href="#" data-target="calendarPicker"
-            class="tab tab-calendar btn-floating blue lighten-2 sidenav-trigger hide-on-large-only"><i
+            class="calendarShower tab tab-calendar btn-floating blue lighten-2 sidenav-trigger hide-on-large-only"><i
                 class="material-icons">date_range</i></a>
         <ul id="nav" class="sidenav sidenav-fixed menu">
             <li>
@@ -246,8 +246,8 @@
         // Initialize all modals.
         $('.modal').modal();
 
-        $('.backto-school').click(function(){
-            $("#authentication").fadeOut(1000,function(){
+        $('.backto-school').click(function () {
+            $("#authentication").fadeOut(1000, function () {
                 $("#enterSchoolName").fadeIn(1000);
             });
         });
@@ -764,6 +764,18 @@
         .tabs {
             left: 150px;
         }
+    }
+
+    .calendarShower {
+        position: fixed;
+        right: 10px;
+        top: 10px;
+    }
+
+    .menuShower {
+        position: fixed;
+        left: 10px;
+        top: 10px;
     }
 </style>
 
