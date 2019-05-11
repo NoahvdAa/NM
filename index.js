@@ -32,8 +32,11 @@ app.get('/set_session', async function (req, res) {
 
 app.ws('/magister', async function (ws, req) {
 
+  ws.noPGP = false;
+
   ws.encSend = async function (msg) {
-    if (!ws.publicKey || ws.readyState != 1) return setTimeout(function () { ws.encSend(msg); }, 100); // Try again after 100ms.
+    if ((!ws.publicKey && ws.noPGP == false) || ws.readyState != 1) return setTimeout(function () { ws.encSend(msg); }, 100); // Try again after 100ms.
+    if(ws.noPGP) return ws.send(msg);
     var message = await encrypt(msg, ws.publicKey);
     ws.send(message);
   }
@@ -68,6 +71,7 @@ app.ws('/magister', async function (ws, req) {
   }
 
   ws.on('message', async function (msg) {
+    if (msg == 'noPGP') return ws.noPGP = true;
     if (msg.includes('-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
       ws.publicKey = msg;
       var serverInfo = JSON.stringify({
@@ -82,7 +86,7 @@ app.ws('/magister', async function (ws, req) {
     }
 
     // Deny all messages if no public key is sent yet.
-    if (!ws.publicKey) return;
+    if (!ws.publicKey && ws.noPGP != true) return;
 
     var message = msg;
 
