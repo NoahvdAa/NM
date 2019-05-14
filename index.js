@@ -6,6 +6,14 @@ rimraf("tmp/", function () {
   fs.mkdirSync('tmp/img');
 });
 
+const getAuthCode = require('@magisterjs/dynamic-authcode');
+
+global.authCode = '';
+
+fetchAuthCode();
+
+setInterval(fetchAuthCode, (5*60*1000)); // Fetch authcode every 5 minutes.
+
 var { default: magister, getSchools } = require('magister.js');
 
 var schoolsByID = {};
@@ -51,7 +59,8 @@ app.ws('/magister', async function (ws, req) {
         } else {
           magister({
             school: s[0],
-            token: req.cookies.session
+            token: req.cookies.session,
+            authCode: global.authCode
           })
             .then((m) => {
               ws.encSend(`{"type":"fastlogin","content":"${req.cookies.schoolName}"}`);
@@ -134,6 +143,7 @@ app.ws('/magister', async function (ws, req) {
         school: schoolsByID[content[0]],
         username: content[1],
         password: content[2],
+        authCode: global.authCode
       })
         .then((m) => {
           ws.session = m;
@@ -233,4 +243,8 @@ async function decrypt(message, privateKey) {
 
   var ciphertext = await openpgp.decrypt(options);
   return ciphertext.data;
+}
+
+async function fetchAuthCode(){
+  global.authCode = await getAuthCode();
 }
