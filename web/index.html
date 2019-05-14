@@ -153,11 +153,14 @@
             <li>
                 <div class="divider"></div>
             </li>
-            <li data-tab="personalization"><a href="#"><i class="material-icons">brush</i><span
-                        data-lkey="sidebar.tab.personalization">Personalization</span></a></li>
+            <li data-tab="settings"><a href="#"><i class="material-icons">settings</i><span
+                        data-lkey="sidebar.tab.settings">Settings</span></a></li>
             <li>
                 <div class="divider"></div>
             </li>
+            <li onclick="deleteAllCookies();"><a href="#"><i class="material-icons">power_settings_new</i><span
+                data-lkey="sidebar.button.signout">Sign Out</span></a></li>
+            <br>
             <div id="language-selector-sidebar" style="margin: 5px;"></div>
         </ul>
         <div class="tabs">
@@ -188,12 +191,11 @@
             <div class="tab tab-messages">
                 Messages
             </div>
-            <!-- PERSONALIZATION -->
-            <div class="tab tab-personalization" style="display: inline-flex; text-transform: none;">
-                <p data-lkey="personalization.themecolor">Theme Colour:</p>&nbsp;<div id="themeColorPicker"></div>
-                <br>
+            <!-- SETTINGS -->
+            <div class="tab tab-settings" style="display: inline-flex; text-transform: none;">
+                <p data-lkey="settings.themecolor">Theme Colour:</p>&nbsp;<div id="themeColorPicker"></div>
             </div>
-            <!-- PERSONALIZATION -->
+            <!-- SETTINGS -->
         </div>
     </div>
 
