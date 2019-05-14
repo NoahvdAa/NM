@@ -493,9 +493,9 @@
 
                         if (new Date(a.start).getDate() != date.getDate()) {
                             // New day!
-                            if (i != 1) newHTML += '</div></div></div>';
+                            if (i != 1) newHTML += '</ul></div></div></div>';
                             date = new Date(a.start);
-                            newHTML += '<div class="col s12 m7"><div class="card"><div class="card-image ' + palette.theme + '" data-pkey="theme"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="width: 0px; height: 100px;"><span class="card-title">' + languagesFile[language]['calendar.infocard.days'][date.getDay()] + ', ' + ([addZeroIfRequired(date.getDate()), addZeroIfRequired(date.getMonth() + 1), addZeroIfRequired(date.getFullYear())].join('-')) + '</span></div><div class="card-content">';
+                            newHTML += '<div class="col s12 m7"><div class="card"><div class="card-image ' + palette.theme + '" data-pkey="theme"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="width: 0px; height: 100px;"><span class="card-title">' + languagesFile[language]['calendar.infocard.days'][date.getDay()] + ', ' + ([addZeroIfRequired(date.getDate()), addZeroIfRequired(date.getMonth() + 1), addZeroIfRequired(date.getFullYear())].join('-')) + '</span></div><div class="card-content"><ul class="collection">';
                         }
 
                         var hours = '';
@@ -507,19 +507,15 @@
                             hours = '<span class="badge black left">' + list.join('-') + '</span>';
                         }
 
-                        // Information has changed? Add changed badge
-                        var extraHTML = '';
-                        if (a.isChanged) extraHTML = '<span class="badge blue right" style="color: white;">!</span>';
-
                         // Show location if specified.
                         var location = '';
                         if (a.location) location = ' (' + a.location + ')';
 
-                        newHTML += '<a href="#!" class="collection-item">';
-                        newHTML += hours + a.description + location + extraHTML;
-                        newHTML += '</a>';
+                        newHTML += '<li href="#!" class="collection-item">';
+                        newHTML += hours + '&nbsp;' + a.description + location;
+                        newHTML += '</li>';
                     });
-                    $(".appointments").html(newHTML + '</div></div></div></div>');
+                    $(".appointments").html(newHTML + '</ul></div></div></div></div>');
                 }
             } else if (type == 'profilePicture') {
                 $(".profilePicture").attr('src', content);
