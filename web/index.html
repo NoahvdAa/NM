@@ -460,7 +460,7 @@
                     minLength: 1
                 });
                 $('#schoolname').trigger('updateData');
-                M.Autocomplete.getInstance($('#schoolname')).open();
+                if(!M.Autocomplete.getInstance($('#schoolname')).dropdown.isOpen) M.Autocomplete.getInstance($('#schoolname')).open();
             } else if (type == 'fastlogin') {
                 $(".schoolName").text(content);
             } else if (type == 'login_success') {
