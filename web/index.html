@@ -159,7 +159,7 @@
                 <div class="divider"></div>
             </li>
             <li onclick="deleteAllCookies();"><a href="#"><i class="material-icons">power_settings_new</i><span
-                data-lkey="sidebar.button.signout">Sign Out</span></a></li>
+                        data-lkey="sidebar.button.signout">Sign Out</span></a></li>
             <br>
             <div id="language-selector-sidebar" style="margin: 5px;"></div>
         </ul>
@@ -460,7 +460,7 @@
                     minLength: 1
                 });
                 $('#schoolname').trigger('updateData');
-                if(!M.Autocomplete.getInstance($('#schoolname')).dropdown.isOpen) M.Autocomplete.getInstance($('#schoolname')).open();
+                if (!M.Autocomplete.getInstance($('#schoolname')).dropdown.isOpen) M.Autocomplete.getInstance($('#schoolname')).open();
             } else if (type == 'fastlogin') {
                 $(".schoolName").text(content);
             } else if (type == 'login_success') {
