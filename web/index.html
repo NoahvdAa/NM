@@ -39,6 +39,9 @@
     <!-- OpenPGP.js for encryption -->
     <script src="/js/openpgp.min.js"></script>
 
+    <!-- DomPurify for anti-xss -->
+    <script src="/js/dompurify.min.js"></script>
+
     <title>NM</title>
 </head>
 
@@ -433,7 +436,7 @@
             if (typeof (decoded.content) == 'undefined') return debug('[SOCKET] Received message without content.');
 
             var type = decoded.type;
-            var content = decoded.content;
+            var content = DOMPurify.sanitize(decoded.content);
 
             if (type == 'loginRequired') {
                 if (loggedIn) window.location.reload();
