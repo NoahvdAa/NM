@@ -47,6 +47,9 @@
     <!-- DomPurify for anti-xss -->
     <script src="/js/dompurify.min.js"></script>
 
+    <!-- Sentry issue tracking -->
+    <script src="https://browser.sentry-cdn.com/5.4.0/bundle.min.js" crossorigin="anonymous"></script>
+
     <title>NM</title>
 </head>
 
@@ -220,6 +223,9 @@
 
 </body>
 <script>
+    // Initialize Sentry issue tracking.
+    Sentry.init({ dsn: 'https://ec3fcb4d1b4b47cdbe6674c7ef968e9c@sentry.io/1475676' });
+
     if (localStorage.getItem('debugMode') == null) localStorage.setItem('debugMode', 'false');
     var debugMode = localStorage.getItem('debugMode');
     if (debugMode == 'true') $("#debugMode").attr('checked', 'checked');
