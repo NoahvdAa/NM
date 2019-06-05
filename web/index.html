@@ -50,6 +50,9 @@
     <!-- Sentry issue tracking -->
     <script src="https://browser.sentry-cdn.com/5.4.0/bundle.min.js" crossorigin="anonymous"></script>
 
+    <!-- JSCookie for easy cookie read + write. -->
+    <script src="/js/jscookie.min.js"></script>
+
     <title>NM</title>
 </head>
 
@@ -452,6 +455,12 @@
             if (type == 'loginRequired') {
                 if (loggedIn) window.location.reload();
                 else $("#loginContainer").fadeIn(1000);
+
+                // Autofill school name.
+                if(typeof(Cookies.get('schoolName')) != 'undefined'){
+                    $("#schoolname").val(Cookies.get('schoolName'));
+                    window.socket.send(JSON.stringify({ "type": "getSchools", "content": Cookies.get('schoolName') }));
+                }
             } else if (type == 'serverInfo') {
                 var info = JSON.parse(content);
             } else if (type == 'schools') {
