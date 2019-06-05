@@ -460,7 +460,7 @@
                 else $("#loginContainer").fadeIn(1000);
 
                 // Autofill school name.
-                if(typeof(Cookies.get('schoolName')) != 'undefined'){
+                if (typeof (Cookies.get('schoolName')) != 'undefined') {
                     $("#schoolname").val(Cookies.get('schoolName'));
                     window.socket.send(JSON.stringify({ "type": "getSchools", "content": Cookies.get('schoolName') }));
                     window.autoFilled = true;
@@ -487,7 +487,11 @@
                     minLength: 1
                 });
                 $('#schoolname').trigger('updateData');
-                if (!M.Autocomplete.getInstance($('#schoolname')).dropdown.isOpen) M.Autocomplete.getInstance($('#schoolname')).open();
+                try {
+                    if (!M.Autocomplete.getInstance($('#schoolname')).dropdown.isOpen) M.Autocomplete.getInstance($('#schoolname')).open();
+                } catch (error) {
+
+                }
             } else if (type == 'fastlogin') {
                 $(".schoolName").text(content);
             } else if (type == 'login_success') {
@@ -767,7 +771,7 @@
             $('.proceedto-auth').addClass('disabled');
         } else {
             $('.proceedto-auth').removeClass('disabled');
-            if(window.autoFilled){
+            if (window.autoFilled) {
                 $('.proceedto-auth').click();
                 window.autoFilled = false;
             }
