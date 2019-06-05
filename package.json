@@ -19,6 +19,7 @@
   "dependencies": {
     "@magisterjs/authcode": "^1.18.0",
     "@magisterjs/dynamic-authcode": "^1.1.0",
+    "@sentry/node": "^5.4.0",
     "cookie-parser": "^1.4.4",
     "crypto": "^1.0.1",
     "express": "^4.16.4",

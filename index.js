@@ -1,3 +1,7 @@
+// Initialize Sentry issue tracking.
+const Sentry = require('@sentry/node');
+Sentry.init({ dsn: 'https://5ea0b695ab0f4ee59f46c5d6b52241be@sentry.io/1475688' });
+
 // Clear tmp directory
 var fs = require('fs');
 var rimraf = require("rimraf");
@@ -12,7 +16,7 @@ global.authCode = '';
 
 fetchAuthCode();
 
-setInterval(fetchAuthCode, (5*60*1000)); // Fetch authcode every 5 minutes.
+setInterval(fetchAuthCode, (5 * 60 * 1000)); // Fetch authcode every 5 minutes.
 
 var { default: magister, getSchools } = require('magister.js');
 
@@ -44,7 +48,7 @@ app.ws('/magister', async function (ws, req) {
 
   ws.encSend = async function (msg) {
     if ((!ws.publicKey && ws.noPGP == false) || ws.readyState != 1) return setTimeout(function () { ws.encSend(msg); }, 100); // Try again after 100ms.
-    if(ws.noPGP) return ws.send(msg);
+    if (ws.noPGP) return ws.send(msg);
     var message = await encrypt(msg, ws.publicKey);
     ws.send(message);
   }
@@ -245,6 +249,6 @@ async function decrypt(message, privateKey) {
   return ciphertext.data;
 }
 
-async function fetchAuthCode(){
+async function fetchAuthCode() {
   global.authCode = await getAuthCode();
 }
