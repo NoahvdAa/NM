@@ -229,6 +229,8 @@
     // Initialize Sentry issue tracking.
     Sentry.init({ dsn: 'https://ec3fcb4d1b4b47cdbe6674c7ef968e9c@sentry.io/1475676' });
 
+    window.autoFilled = false;
+
     if (localStorage.getItem('debugMode') == null) localStorage.setItem('debugMode', 'false');
     var debugMode = localStorage.getItem('debugMode');
     if (debugMode == 'true') $("#debugMode").attr('checked', 'checked');
@@ -324,7 +326,7 @@
             } else {
                 window.noPGP = true;
                 connect();
-                debug('PGP incompatible device!');
+                debug('PGP incompatible device!', 'warning');
                 $("#encrypting").hide();
                 $("#con-encrypted").hide();
             }
@@ -346,6 +348,7 @@
         });
 
         $('#schoolname').on('input', function () {
+            window.autoFilled = false;
             window.socket.send(JSON.stringify({ "type": "getSchools", "content": $('#schoolname').val() }));
         });
 
@@ -460,6 +463,7 @@
                 if(typeof(Cookies.get('schoolName')) != 'undefined'){
                     $("#schoolname").val(Cookies.get('schoolName'));
                     window.socket.send(JSON.stringify({ "type": "getSchools", "content": Cookies.get('schoolName') }));
+                    window.autoFilled = true;
                 }
             } else if (type == 'serverInfo') {
                 var info = JSON.parse(content);
@@ -763,6 +767,10 @@
             $('.proceedto-auth').addClass('disabled');
         } else {
             $('.proceedto-auth').removeClass('disabled');
+            if(window.autoFilled){
+                $('.proceedto-auth').click();
+                window.autoFilled = false;
+            }
         }
     }, 500);
 
