@@ -794,12 +794,16 @@
     var eEgg = [];
     var eEggTrigger = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
 
+    var keyCommands = {
+        "d": function () {
+            M.Modal.getInstance(document.getElementById("devTools")).open();
+        }
+    };
+
     document.onkeydown = function (event) {
         var key = event.key.toLowerCase();
         if (eEgg.length == eEggTrigger.length) {
-            if (key == 'd') {
-                M.Modal.getInstance(document.getElementById("devTools")).open();
-            }
+            if (typeof (keyCommands[key]) != 'undefined') keyCommands[key]();
             return eEgg = [];
         }
         if (eEggTrigger[eEgg.length] != key) return eEgg = [];
