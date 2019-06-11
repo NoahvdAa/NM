@@ -46,7 +46,7 @@
 
     <!-- DomPurify for anti-xss -->
     <script src="/js/dompurify.min.js"></script>
-    
+
     <!-- JSCookie for easy cookie read + write. -->
     <script src="/js/jscookie.min.js"></script>
 
@@ -223,7 +223,9 @@
 
 </body>
 <script>
-    window.autoFilled = false;
+    var clientVersion = '';
+
+    var autoFilled = false;
 
     if (localStorage.getItem('debugMode') == null) localStorage.setItem('debugMode', 'false');
     var debugMode = localStorage.getItem('debugMode');
@@ -248,7 +250,7 @@
         "theme": "orange darken-3"
     };
 
-    var palette;
+    var palette = {};
 
     var pgpOptions = {
         userIds: [{ "name": makeRandomString(10), "email": makeRandomString(5) + "@" + makeRandomString(10) + ".com" }],
@@ -258,7 +260,7 @@
 
     $(document).ready(function () {
 
-        window.palette = JSON.parse(localStorage.getItem('palette')) || defaultPalette;
+        palette = JSON.parse(localStorage.getItem('palette')) || defaultPalette;
         localStorage.setItem('palette', JSON.stringify(palette));
 
         fixPalette();
@@ -342,7 +344,7 @@
         });
 
         $('#schoolname').on('input', function () {
-            window.autoFilled = false;
+            autoFilled = false;
             window.socket.send(JSON.stringify({ "type": "getSchools", "content": $('#schoolname').val() }));
         });
 
@@ -390,7 +392,7 @@
         window.socket = new WebSocket(protocol + window.location.hostname + '/magister');
 
         window.socket.onerror, window.socket.onclose = function () {
-            debug('[SOCKET] Lost connection to socket. Reconnecting in 1000ms.');
+            debug('[SOCKET] Lost connection to socket. Reconnecting in 1000ms.', 'warning');
             $("#connecting").fadeIn(1000);
             setTimeout(connect, 1000);
         };
@@ -457,10 +459,20 @@
                 if (typeof (Cookies.get('schoolName')) != 'undefined') {
                     $("#schoolname").val(Cookies.get('schoolName'));
                     window.socket.send(JSON.stringify({ "type": "getSchools", "content": Cookies.get('schoolName') }));
-                    window.autoFilled = true;
+                    autoFilled = true;
                 }
             } else if (type == 'serverInfo') {
                 var info = JSON.parse(content);
+
+                // Is the client up to date?
+                if (clientVersion == ''){ 
+                    // No version known yet? Set it!
+                    clientVersion = info.clientVersion;
+                }else if (clientVersion != info.clientVersion){
+                    // An update got released, but we are not running it yet!
+                    // To prevent issues with changed endpoints, reload!
+                    window.location.reload();
+                }
             } else if (type == 'schools') {
                 var schools = JSON.parse(content);
                 if (schools.length != 0) {
@@ -551,17 +563,17 @@
     }
 
     function fixPalette() {
-        Object.keys(window.palette).forEach(k => {
-            if (typeof (window.palette[k]) == 'undefined') window.palette[k] = defaultPalette[k];
+        Object.keys(palette).forEach(k => {
+            if (typeof (palette[k]) == 'undefined') palette[k] = defaultPalette[k];
         });
 
-        localStorage.setItem('palette', JSON.stringify(window.palette));
+        localStorage.setItem('palette', JSON.stringify(palette));
     }
 
     function applyPersonalization() {
         stripMaterializeColorClasses('[data-pkey]');
 
-        var newColors = window.palette;
+        var newColors = palette;
 
         Object.keys(newColors).forEach(pkey => {
             newColors[pkey].split(' ').forEach(color => {
@@ -569,19 +581,19 @@
             });
         });
 
-        localStorage.setItem('palette', JSON.stringify(window.palette));
+        localStorage.setItem('palette', JSON.stringify(palette));
     }
 
-    window.colorPickers = {};
+    var colorPickers = {};
 
     function makeColorPicker(id, valueToUpdate) {
         document.getElementById(id).addEventListener('changed', function (e) {
-            if (new Date().getTime() < window.colorPickers[valueToUpdate].last + 2500) return;
-            palette[valueToUpdate] = window.colorPickers[valueToUpdate].getSelectedValue();
+            if (new Date().getTime() < colorPickers[valueToUpdate].last + 2500) return;
+            palette[valueToUpdate] = colorPickers[valueToUpdate].getSelectedValue();
             applyPersonalization();
         });
 
-        window.colorPickers[valueToUpdate] = new IconSelect(id,
+        colorPickers[valueToUpdate] = new IconSelect(id,
             {
                 'selectedIconWidth': 23,
                 'selectedIconHeight': 23,
@@ -593,19 +605,19 @@
                 'horizontalIconNumber': 5
             });
 
-        window.colorPickers[valueToUpdate].last = new Date().getTime();
+        colorPickers[valueToUpdate].last = new Date().getTime();
         var icons = [];
 
         Object.keys(materializeColors).forEach(c => {
             icons.push({ 'iconFilePath': "data:image/svg+xml," + encodeURI("<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect id='backgroundrect' width='100%' height='100%' x='0' y='0' fill='" + c + "' stroke='none'/></svg>").replace('#', '%23'), 'iconValue': materializeColors[c] });
         });
 
-        window.colorPickers[valueToUpdate].refresh(icons);
+        colorPickers[valueToUpdate].refresh(icons);
 
         var i = 0;
         Object.keys(materializeColors).forEach(c => {
             if (materializeColors[c] != palette[valueToUpdate]) return i++;
-            window.colorPickers[valueToUpdate].setSelectedIndex(i);
+            colorPickers[valueToUpdate].setSelectedIndex(i);
         });
     }
 
@@ -672,27 +684,27 @@
         else if (type == 'error') console.log('%c[DEBUG] [ERROR] ' + message, 'background: #FF4136; padding: 4px; color: black;');
     }
 
-    window.lPickers = {};
-    window.globalChangeLPicker = false;
+    var lPickers = {};
+    var globalChangeLPicker = false;
 
     function makeLanguagePicker(id) {
         document.getElementById(id).addEventListener('changed', function (e) {
-            if (window.globalChangeLPicker) return;
-            var values = window.lPickers[id].getSelectedValue().split(';');
+            if (globalChangeLPicker) return;
+            var values = lPickers[id].getSelectedValue().split(';');
             language = values[1];
             localStorage.setItem("language", language);
 
             setLocalizedValues();
 
-            window.globalChangeLPicker = true;
-            Object.keys(window.lPickers).forEach(pickerKey => {
-                picker = window.lPickers[pickerKey];
+            globalChangeLPicker = true;
+            Object.keys(lPickers).forEach(pickerKey => {
+                picker = lPickers[pickerKey];
                 picker.setSelectedIndex(values[0]);
             });
-            window.globalChangeLPicker = false;
+            globalChangeLPicker = false;
         });
 
-        window.lPickers[id] = new IconSelect(id,
+        lPickers[id] = new IconSelect(id,
             {
                 'selectedIconWidth': 48,
                 'selectedIconHeight': 48,
@@ -715,7 +727,7 @@
             icons.push({ 'iconFilePath': '/img/flag-' + l + '.svg', 'iconValue': i + ';' + l });
         });
 
-        window.lPickers[id].refresh(icons);
+        lPickers[id].refresh(icons);
 
     }
 
@@ -765,9 +777,9 @@
             $('.proceedto-auth').addClass('disabled');
         } else {
             $('.proceedto-auth').removeClass('disabled');
-            if (window.autoFilled) {
+            if (autoFilled) {
                 $('.proceedto-auth').click();
-                window.autoFilled = false;
+                autoFilled = false;
             }
         }
     }, 500);
@@ -837,8 +849,8 @@
     }
 
     .loading-back {
-        background-image: url(/img/loading.svg); 
-        background-size: 12.5%; 
+        background-image: url(/img/loading.svg);
+        background-size: 12.5%;
         background-repeat: no-repeat;
         background-position: center;
     }

@@ -1,3 +1,10 @@
+// IMPORTANT NOTE:
+// The client and server version are not the same.
+// The server version doesn't really have a purpose yet, but the client version does.
+// Whenever the client version changes, the client will INSTANTLY refresh to update.
+const serverVersion = '0.0.1_build_0001';
+const clientVersion = '0.0.1_build_0001';
+
 // Clear tmp directory
 var fs = require('fs');
 var rimraf = require("rimraf");
@@ -83,8 +90,12 @@ app.ws('/magister', async function (ws, req) {
     if (msg == 'noPGP') return ws.noPGP = true;
     if (msg.includes('-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
       ws.publicKey = msg;
-      var serverInfo = JSON.stringify({
 
+      // The server version and client version are NOT the same!
+      // Please scroll to the beginning of the file for more information.
+      var serverInfo = JSON.stringify({
+        "serverVersion": serverVersion,
+        "clientVersion": clientVersion
       });
       ws.send(JSON.stringify({
         "type": "serverInfo",
