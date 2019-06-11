@@ -46,10 +46,7 @@
 
     <!-- DomPurify for anti-xss -->
     <script src="/js/dompurify.min.js"></script>
-
-    <!-- Sentry issue tracking -->
-    <script src="https://browser.sentry-cdn.com/5.4.0/bundle.min.js" crossorigin="anonymous"></script>
-
+    
     <!-- JSCookie for easy cookie read + write. -->
     <script src="/js/jscookie.min.js"></script>
 
@@ -226,9 +223,6 @@
 
 </body>
 <script>
-    // Initialize Sentry issue tracking.
-    Sentry.init({ dsn: 'https://ec3fcb4d1b4b47cdbe6674c7ef968e9c@sentry.io/1475676' });
-
     window.autoFilled = false;
 
     if (localStorage.getItem('debugMode') == null) localStorage.setItem('debugMode', 'false');

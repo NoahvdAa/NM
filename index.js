@@ -1,7 +1,3 @@
-// Initialize Sentry issue tracking.
-const Sentry = require('@sentry/node');
-Sentry.init({ dsn: 'https://5ea0b695ab0f4ee59f46c5d6b52241be@sentry.io/1475688' });
-
 // Clear tmp directory
 var fs = require('fs');
 var rimraf = require("rimraf");
