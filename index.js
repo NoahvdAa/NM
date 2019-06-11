@@ -5,7 +5,7 @@
 const serverVersion = '0.0.1_build_0001';
 const clientVersion = '0.0.1_build_0001';
 
-// Clear tmp directory
+// Clear temp directory.
 var fs = require('fs');
 var rimraf = require("rimraf");
 rimraf("tmp/", function () {
@@ -208,21 +208,58 @@ var publicKey = '';
 var pgpOptions = {
   userIds: [{ "name": makeRandomString(10), "email": makeRandomString(5) + "@" + makeRandomString(10) + ".com" }],
   numBits: 2048,
-  passphrase: makeRandomString(20)
+  passphrase: process.env.pgppassphrase || 'nm_default_passphrase'
 };
 
-console.log('Generating PGP keys, this can take a while!');
-openpgp.generateKey(pgpOptions).then(async function (key) {
-  privateKey = key.privateKeyArmored;
-  publicKey = key.publicKeyArmored;
+if (fs.existsSync('./public.key') && fs.existsSync('./private.key')) {
+  // Keys already exist! Try to load them.
+  console.log('Found already existing PGP keys, trying to load them.');
+  fs.readFile('./public.key', 'utf8', function (err, contents) {
+    publicKey = contents;
+    fs.readFile('./private.key', 'utf8', function (err, contents) {
+      privateKey = contents;
+      try {
+        encrypt('check', publicKey).then(m => {
+          decrypt(m, privateKey).then(d => {
+            console.log('PGP keys are valid, they will be used!');
+            if (d == 'check') listen();
+            else generatePGPKeys();
+          }).catch(()=>generatePGPKeys());
+        }).catch(()=>generatePGPKeys());
+      } catch (e) {
+        // Failed, generate new keys.
+        generatePGPKeys();
+      }
+    });
+  });
+} else {
+  generatePGPKeys();
+}
 
-  console.log('Generated PGP keys.');
+function generatePGPKeys() {
+  console.log('Generating PGP keys, this can take a while!');
+  openpgp.generateKey(pgpOptions).then(async function (key) {
+    privateKey = key.privateKeyArmored;
+    publicKey = key.publicKeyArmored;
+
+    console.log('Generated PGP keys.');
+
+    // Save keys
+    fs.writeFile("./public.key", publicKey, function (err) {
+      fs.writeFile("./private.key", privateKey, function (err) {
+        console.log('Saved new PGP keys to file.');
+      });
+    });
+
+    listen();
+  });
+}
+
+function listen() {
   app.listen(process.env.PORT || 80, function () {
     console.log('Listening on port ' + (process.env.PORT || 80) + '!');
   });
-
-});
-
+}
 
 function makeRandomString(length) {
   var result = '';
