@@ -55,13 +55,13 @@
 
 <body>
 
-    <div id="encrypting" class="orange darken-3" data-pkey="theme"
-        style="background-image: url(/img/loading.svg) center no-repeat; background-size: 12.5%; left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 9999; text-align: center; font-size: 50px; color: white; display: none;">
+    <div id="encrypting" class="orange darken-3 loading-back" data-pkey="theme"
+        style="left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 9999; text-align: center; font-size: 50px; color: white; display: none;">
         <p data-lkey="login.encrypting">Encrypting connection...</p>
     </div>
 
-    <div id="connecting" class="orange darken-3" data-pkey="theme"
-        style="background-image: url(/img/loading.svg) center no-repeat; background-size: 12.5%; left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 9999; display: none;">
+    <div id="connecting" class="orange darken-3 loading-back" data-pkey="theme"
+        style="left: 0; right: 0; top: 0; bottom: 0; position: fixed; z-index: 9999; display: none;">
         &nbsp;
     </div>
 
@@ -834,6 +834,13 @@
         position: fixed;
         left: 10px;
         top: 10px;
+    }
+
+    .loading-back {
+        background-image: url(/img/loading.svg); 
+        background-size: 12.5%; 
+        background-repeat: no-repeat;
+        background-position: center;
     }
 </style>
 
