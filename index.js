@@ -1,7 +1,9 @@
-// IMPORTANT NOTE:
-// The client and server version are not the same.
-// The server version doesn't really have a purpose yet, but the client version does.
-// Whenever the client version changes, the client will INSTANTLY refresh to update.
+/*
+  IMPORTANT NOTE:
+  The client and server version are not the same.
+  The server version doesn't really have a purpose yet, but the client version does.
+  Whenever the client version changes, the client will INSTANTLY refresh to update.
+*/
 const serverVersion = "0.0.1_build_0002";
 const clientVersion = "0.0.1_build_0002";
 
@@ -208,12 +210,13 @@ app.ws("/magister", async function (ws, req) {
       });
       return;
     } else if (message.type === "login") {
+      var content = {};
       try {
-        var content = JSON.parse(message.content);
+        content = JSON.parse(message.content);
       } catch (e) {
         return ws.send(JSON.stringify({ "error": "invalid_json" }));
       }
-      if (!content) return;
+      if (Object.keys(content).length == 0) { return ws.send(JSON.stringify({ "error": "empty_json" })); } // Empty.
       if (typeof (ws.session) !== "undefined") { return ws.send(JSON.stringify({ "error": "already_logged_in" })); }
       if (content.length !== 3) { return ws.send(JSON.stringify({ "error": "invalid_format" })); }
       if (typeof (schoolsByID[content[0]]) === "undefined") { return ws.send(JSON.stringify({ "error": "invalid_school" })); }
@@ -281,8 +284,8 @@ if (fs.existsSync("./public.key") && fs.existsSync("./private.key")) {
         encrypt("check", publicKey).then((m) => {
           decrypt(m, privateKey).then((d) => {
             console.log("PGP keys are valid, they will be used!");
-            if (d === "check") listen();
-            else generatePGPKeys();
+            if (d === "check") { listen(); }
+            else { generatePGPKeys(); }
           }).catch(() => generatePGPKeys());
         }).catch(() => generatePGPKeys());
       } catch (e) {
