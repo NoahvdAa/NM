@@ -33,6 +33,24 @@ function listen() {
   });
 }
 
+function makeRandomString(length) {
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+var privateKey = "";
+var publicKey = "";
+var pgpOptions = {
+  userIds: [{ "name": makeRandomString(10), "email": makeRandomString(5) + "@" + makeRandomString(10) + ".com" }],
+  numBits: 2048,
+  passphrase: process.env.pgppassphrase || "nm_default_passphrase"
+};
+
 function generatePGPKeys() {
   console.log("Generating PGP keys, this can take a while!");
   openpgp.generateKey(pgpOptions).then(async function (key) {
@@ -50,16 +68,6 @@ function generatePGPKeys() {
 
     listen();
   });
-}
-
-function makeRandomString(length) {
-  var result = "";
-  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
 }
 
 async function encrypt(message, publickey) {
@@ -205,6 +213,7 @@ app.ws("/magister", async function (ws, req) {
       } catch (e) {
         return ws.send(JSON.stringify({ "error": "invalid_json" }));
       }
+      if (!content) return;
       if (typeof (ws.session) !== "undefined") { return ws.send(JSON.stringify({ "error": "already_logged_in" })); }
       if (content.length !== 3) { return ws.send(JSON.stringify({ "error": "invalid_format" })); }
       if (typeof (schoolsByID[content[0]]) === "undefined") { return ws.send(JSON.stringify({ "error": "invalid_school" })); }
@@ -260,14 +269,6 @@ app.ws("/magister", async function (ws, req) {
     }
   });
 });
-
-var privateKey = "";
-var publicKey = "";
-var pgpOptions = {
-  userIds: [{ "name": makeRandomString(10), "email": makeRandomString(5) + "@" + makeRandomString(10) + ".com" }],
-  numBits: 2048,
-  passphrase: process.env.pgppassphrase || "nm_default_passphrase"
-};
 
 if (fs.existsSync("./public.key") && fs.existsSync("./private.key")) {
   // Keys already exist! Try to load them.
