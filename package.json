@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/NoahvdAa/NM#readme",
   "dependencies": {
-    "@magisterjs/authcode": "^1.18.0",
+    "@magisterjs/authcode": "^1.21.0",
     "@magisterjs/dynamic-authcode": "^1.1.0",
     "cookie-parser": "^1.4.4",
     "crypto": "^1.0.1",
