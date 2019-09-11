@@ -24,7 +24,7 @@
     "express": "^4.16.4",
     "express-ws": "^4.0.0",
     "magister.js": "^2.0.0-alpha.12",
-    "openpgp": "^4.4.10",
+    "openpgp": "^4.6.1",
     "rimraf": "^2.6.3",
     "ws": "^7.1.1"
   }
