@@ -17,15 +17,15 @@
   },
   "homepage": "https://github.com/NoahvdAa/NM#readme",
   "dependencies": {
-    "@magisterjs/authcode": "^1.18.0",
+    "@magisterjs/authcode": "^1.23.0",
     "@magisterjs/dynamic-authcode": "^1.1.0",
     "cookie-parser": "^1.4.4",
     "crypto": "^1.0.1",
     "express": "^4.16.4",
     "express-ws": "^4.0.0",
-    "magister.js": "^2.0.0-alpha.11",
+    "magister.js": "^2.0.0-alpha.12",
     "openpgp": "^4.4.10",
     "rimraf": "^2.6.3",
-    "ws": "^6.2.1"
+    "ws": "^7.1.1"
   }
 }
